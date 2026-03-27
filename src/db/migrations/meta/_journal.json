@@ -8,6 +8,13 @@
       "when": 1774580743680,
       "tag": "0000_tricky_maggott",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774582383247,
+      "tag": "0001_lethal_warhawk",
+      "breakpoints": true
     }
   ]
 }

@@ -4,8 +4,12 @@ import { db, schema } from "@/db";
 import { eq, and, isNull, gt } from "drizzle-orm";
 import { verifyOtp } from "@/lib/auth/otp";
 import { getClientByRut, extractClubWilierNumber } from "@/lib/auth/bsale";
-import { createToken, setSessionCookie, hashToken } from "@/lib/auth/jwt";
-import { createHash } from "crypto";
+import {
+  createToken,
+  setSessionCookie,
+  hashToken,
+  generateQrToken,
+} from "@/lib/auth/jwt";
 import { cleanRut } from "@/lib/auth/rut";
 
 const verifySchema = z.object({
@@ -70,39 +74,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!otpRecord.email) {
+      return NextResponse.json(
+        { success: false, error: "Email no encontrado en el registro" },
+        { status: 400 },
+      );
+    }
+
     const now = new Date();
     const clubWilierNumber = extractClubWilierNumber(bsaleClient);
-    const qrToken = clubWilierNumber
-      ? createHash("sha256")
-          .update(cleanedRut + process.env.JWT_SECRET)
-          .digest("hex")
-      : null;
+    const qrToken = clubWilierNumber ? generateQrToken(cleanedRut) : null;
 
-    await db
-      .insert(schema.users)
-      .values({
-        rut: cleanedRut,
-        firstName: bsaleClient.firstName,
-        lastName: bsaleClient.lastName,
-        email: otpRecord.email,
-        clubWilierNumber,
-        qrToken,
-        createdAt: now,
-        updatedAt: now,
-        lastSyncedAt: now,
-      })
-      .onConflictDoUpdate({
-        target: schema.users.rut,
-        set: {
-          firstName: bsaleClient.firstName,
-          lastName: bsaleClient.lastName,
-          email: otpRecord.email,
-          clubWilierNumber,
-          qrToken,
-          updatedAt: now,
-          lastSyncedAt: now,
-        },
-      });
+    const userValues = {
+      rut: cleanedRut,
+      firstName: String(bsaleClient.firstName),
+      lastName: String(bsaleClient.lastName),
+      email: otpRecord.email,
+      clubWilierNumber: clubWilierNumber ?? null,
+      qrToken: qrToken ?? null,
+      createdAt: now,
+      updatedAt: now,
+      lastSyncedAt: now,
+    };
 
     const token = await createToken({
       rut: cleanedRut,
@@ -111,11 +104,33 @@ export async function POST(request: NextRequest) {
 
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    await db.insert(schema.sessions).values({
-      userRut: cleanedRut,
-      tokenHash: hashToken(token),
-      expiresAt,
-      createdAt: now,
+    await db.transaction(async (tx) => {
+      await tx
+        .insert(schema.users)
+        .values(userValues)
+        .onConflictDoUpdate({
+          target: schema.users.rut,
+          set: {
+            firstName: userValues.firstName,
+            lastName: userValues.lastName,
+            email: userValues.email,
+            clubWilierNumber: userValues.clubWilierNumber,
+            qrToken: userValues.qrToken,
+            updatedAt: now,
+            lastSyncedAt: now,
+          },
+        });
+
+      await tx
+        .delete(schema.sessions)
+        .where(eq(schema.sessions.userRut, cleanedRut));
+
+      await tx.insert(schema.sessions).values({
+        userRut: cleanedRut,
+        tokenHash: hashToken(token),
+        expiresAt,
+        createdAt: now,
+      });
     });
 
     await setSessionCookie(token);

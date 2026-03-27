@@ -3,7 +3,7 @@ import { createHash } from "crypto";
 import { cookies } from "next/headers";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "fallback-secret-change-in-production"
+  process.env.JWT_SECRET || "fallback-secret-change-in-production",
 );
 
 const COOKIE_NAME = "session";
@@ -24,7 +24,9 @@ export async function createToken(payload: SessionPayload): Promise<string> {
   return token;
 }
 
-export async function verifyToken(token: string): Promise<SessionPayload | null> {
+export async function verifyToken(
+  token: string,
+): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     return payload as SessionPayload;
@@ -35,6 +37,14 @@ export async function verifyToken(token: string): Promise<SessionPayload | null>
 
 export function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
+}
+
+export function generateQrToken(rut: string): string {
+  const secret =
+    process.env.JWT_SECRET || "fallback-secret-change-in-production";
+  return createHash("sha256")
+    .update(rut + secret)
+    .digest("hex");
 }
 
 export async function setSessionCookie(token: string): Promise<void> {
