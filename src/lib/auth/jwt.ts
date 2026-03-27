@@ -2,9 +2,7 @@ import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import { createHash } from "crypto";
 import { cookies } from "next/headers";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "fallback-secret-change-in-production",
-);
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 
 const COOKIE_NAME = "session";
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
@@ -40,7 +38,7 @@ export function hashToken(token: string): string {
 }
 
 export function generateQrToken(rut: string): string {
-  const secret = process.env.JWT_SECRET!;
+  const secret = JWT_SECRET;
   return createHash("sha256")
     .update(rut + secret)
     .digest("hex");
