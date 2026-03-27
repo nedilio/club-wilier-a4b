@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         and(
           eq(schema.otpCodes.rut, cleanedRut),
           isNull(schema.otpCodes.usedAt),
-          gt(schema.otpCodes.expiresAt, Date.now()),
+          gt(schema.otpCodes.expiresAt, new Date()),
         ),
       )
       .orderBy(schema.otpCodes.createdAt);
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     await db
       .update(schema.otpCodes)
-      .set({ usedAt: Date.now() })
+      .set({ usedAt: new Date() })
       .where(eq(schema.otpCodes.id, otpRecord.id));
 
     const bsaleClient = await getClientByRut(cleanedRut);
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const now = Date.now();
+    const now = new Date();
     const clubWilierNumber = extractClubWilierNumber(bsaleClient);
     const qrToken = clubWilierNumber
       ? createHash("sha256")
@@ -87,8 +87,8 @@ export async function POST(request: NextRequest) {
         email: otpRecord.email,
         clubWilierNumber,
         qrToken,
-        createdAt: bsaleClient.createdAt,
-        updatedAt: bsaleClient.updatedAt,
+        createdAt: now,
+        updatedAt: now,
         lastSyncedAt: now,
       })
       .onConflictDoUpdate({
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
           email: otpRecord.email,
           clubWilierNumber,
           qrToken,
-          updatedAt: bsaleClient.updatedAt,
+          updatedAt: now,
           lastSyncedAt: now,
         },
       });
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       email: otpRecord.email,
     });
 
-    const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await db.insert(schema.sessions).values({
       userRut: cleanedRut,

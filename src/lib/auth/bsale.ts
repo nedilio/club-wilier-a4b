@@ -14,8 +14,6 @@ export interface BSaleClient {
   hasCredit: number;
   maxCredit: number;
   points: number;
-  createdAt: number;
-  updatedAt: number;
   attributes?: {
     items: Array<{
       id: number;
@@ -76,7 +74,7 @@ export function extractClubWilierNumber(client: BSaleClient): string | null {
     (attr) => attr.name === "Club Wilier",
   );
 
-  return clubWilierAttribute?.value ? client.id.toString() : null;
+  return clubWilierAttribute ? client.id.toString() : null;
 }
 
 export function isClientActive(client: BSaleClient): boolean {
