@@ -1,120 +1,46 @@
-"use client";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { cache } from "react";
+import { db, schema } from "@/db";
+import { eq } from "drizzle-orm";
+import { getSession } from "@/lib/auth/jwt";
+import { CardView } from "@/components/card/card-view";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import {
-  MembershipCard,
-  MembershipCardPlaceholder,
-} from "@/components/card/membership-card";
-import { BrandLogo } from "@/components/login/brand-logo";
-import { LogOutIcon } from "lucide-react";
+const getCardUser = cache(async () => {
+  const session = await getSession();
+  if (!session) return null;
 
-interface User {
-  rut: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  clubWilierNumber: string | null;
+  const [user] = await db
+    .select({
+      rut: schema.users.rut,
+      firstName: schema.users.firstName,
+      lastName: schema.users.lastName,
+      email: schema.users.email,
+      clubWilierNumber: schema.users.clubWilierNumber,
+    })
+    .from(schema.users)
+    .where(eq(schema.users.rut, session.rut));
+
+  return user ?? null;
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+  const user = await getCardUser();
+  if (!user) {
+    return { title: "Mi Tarjeta" };
+  }
+  return {
+    title: `${user.firstName} ${user.lastName}`,
+    description: `Tarjeta de socio Club Wilier de ${user.firstName} ${user.lastName}.`,
+  };
 }
 
-export default function CardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/auth/session")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.user) {
-          setUser(data.user);
-        } else {
-          router.push("/login");
-        }
-      })
-      .catch(() => router.push("/login"))
-      .finally(() => setLoading(false));
-  }, [router]);
-
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  };
-
-  if (loading) {
-    return (
-      <div
-        className="min-h-svh w-full flex flex-col items-center justify-center p-6"
-        style={{
-          background:
-            "linear-gradient(135deg, #121c2b 0%, #1e2f42 50%, #121c2b 100%)",
-        }}
-      >
-        <MembershipCardPlaceholder />
-      </div>
-    );
-  }
+export default async function CardPage() {
+  const user = await getCardUser();
 
   if (!user) {
-    return null;
+    redirect("/login");
   }
 
-  const isMember = !!user.clubWilierNumber;
-
-  return (
-    <div
-      className="min-h-svh w-full flex flex-col items-center justify-center p-6 relative overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(135deg, #121c2b 0%, #1e2f42 50%, #121c2b 100%)",
-      }}
-    >
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-      />
-
-      <div className="relative z-10 w-full max-w-md flex flex-col items-center gap-8">
-        <div className="flex flex-col items-center gap-2">
-          <BrandLogo size="sm" />
-          <h1 className="text-xl font-bold tracking-tight text-white">
-            CLUB WILIER
-          </h1>
-          <p className="text-sm text-white/50">Tu tarjeta de socio</p>
-        </div>
-
-        <MembershipCard
-          firstName={user.firstName}
-          lastName={user.lastName}
-          rut={user.rut}
-          clubWilierNumber={user.clubWilierNumber}
-        />
-
-        {!isMember && (
-          <div className="text-center px-4 py-3 rounded-lg bg-white/5 border border-white/10">
-            <p className="text-sm text-white/60">
-              No eres socio del Club Wilier aún.
-            </p>
-            <p className="text-xs text-white/40 mt-1">
-              Solicita ser parte en nuestra tienda{" "}
-            </p>
-          </div>
-        )}
-
-        <Button
-          onClick={handleLogout}
-          variant="default"
-          className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
-        >
-          <LogOutIcon className="mr-2 size-4" />
-          Cerrar sesión
-        </Button>
-
-        <p className="text-xs text-white/30">by All4Bikers Chile</p>
-      </div>
-    </div>
-  );
+  return <CardView user={user} />;
 }
