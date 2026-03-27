@@ -24,6 +24,19 @@ export async function proxy(request: NextRequest) {
   );
 
   if (isPublicRoute) {
+    if (pathname === "/login") {
+      const sessionCookie = request.cookies.get("session");
+      if (sessionCookie?.value) {
+        try {
+          await jwtVerify(sessionCookie.value, JWT_SECRET);
+          return NextResponse.redirect(new URL("/card", request.url));
+        } catch {
+          const response = NextResponse.next();
+          response.cookies.delete("session");
+          return response;
+        }
+      }
+    }
     return NextResponse.next();
   }
 
