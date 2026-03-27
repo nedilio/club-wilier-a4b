@@ -40,8 +40,7 @@ export function hashToken(token: string): string {
 }
 
 export function generateQrToken(rut: string): string {
-  const secret =
-    process.env.JWT_SECRET || "fallback-secret-change-in-production";
+  const secret = process.env.JWT_SECRET!;
   return createHash("sha256")
     .update(rut + secret)
     .digest("hex");
