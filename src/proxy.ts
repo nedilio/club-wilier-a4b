@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "fallback-secret-change-in-production",
-);
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 
 const protectedRoutes = ["/card"];
 const publicRoutes = ["/login", "/api/auth"];
@@ -24,6 +22,19 @@ export async function proxy(request: NextRequest) {
   );
 
   if (isPublicRoute) {
+    if (pathname === "/login") {
+      const sessionCookie = request.cookies.get("session");
+      if (sessionCookie?.value) {
+        try {
+          await jwtVerify(sessionCookie.value, JWT_SECRET);
+          return NextResponse.redirect(new URL("/card", request.url));
+        } catch {
+          const response = NextResponse.next();
+          response.cookies.delete("session");
+          return response;
+        }
+      }
+    }
     return NextResponse.next();
   }
 
