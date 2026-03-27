@@ -55,8 +55,8 @@ export async function POST(request: NextRequest) {
 
     const otp = generateOtp();
     const codeHash = hashOtp(otp);
-    const expiresAt = getOtpExpiration(5);
-    const now = Date.now();
+    const expiresAt = new Date(getOtpExpiration(5));
+    const now = new Date();
 
     await db.insert(schema.otpCodes).values({
       rut: cleanedRut,
