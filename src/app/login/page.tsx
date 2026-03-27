@@ -1,15 +1,11 @@
-"use client";
+import type { Metadata } from "next";
+import { LoginClient } from "./login-client";
 
-import { LoginForm } from "@/components/login-form";
-import { LoginContainer } from "@/components/login/login-container";
-import { LoginCardWrapper } from "@/components/login/login-card-wrapper";
+export const metadata: Metadata = {
+  title: "Inicia Sesión",
+  description: "Accede a tu tarjeta de socio del Club Wilier.",
+};
 
 export default function LoginPage() {
-  return (
-    <LoginContainer>
-      <LoginCardWrapper>
-        <LoginForm />
-      </LoginCardWrapper>
-    </LoginContainer>
-  );
+  return <LoginClient />;
 }
