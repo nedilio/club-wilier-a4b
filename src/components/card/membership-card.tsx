@@ -47,13 +47,15 @@ export function MembershipCard({
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Image
-                src="/All4Bikers_Logotipo_2020_4-10_180x.avif"
-                alt="All4Bikers"
-                width={100}
-                height={100}
-                className="object-contain"
-              />
+              <div className="-mx-2">
+                <Image
+                  src="/All4Bikers_Logo.png"
+                  alt="All4Bikers"
+                  width={180}
+                  height={107}
+                  className="object-contain w-auto h-16"
+                />
+              </div>
             </a>
             {isMember && (
               <div className="text-right">
