@@ -64,19 +64,17 @@ test("full auth flow: seed OTP → complete login → land on /card", async ({
 
   // Manually set the session cookie returned by the API
   const cookies = res.headers()["set-cookie"];
-  if (cookies) {
-    const match = cookies.match(/session=([^;]+)/);
-    if (match) {
-      await page.context().addCookies([
-        {
-          name: "session",
-          value: match[1],
-          domain: "localhost",
-          path: "/",
-        },
-      ]);
-    }
-  }
+  expect(cookies).toBeDefined();
+  const match = cookies!.match(/session=([^;]+)/);
+  expect(match).not.toBeNull();
+  await page.context().addCookies([
+    {
+      name: "session",
+      value: match![1],
+      domain: "localhost",
+      path: "/",
+    },
+  ]);
 
   await page.goto("/card");
   await expect(page).toHaveURL(/\/card/);
