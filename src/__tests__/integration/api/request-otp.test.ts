@@ -78,13 +78,13 @@ describe("POST /api/auth/request-otp", () => {
     });
 
     it("returns 400 for invalid RUT", async () => {
-      vi.mocked(getClientByRut).mockResolvedValue(null);
       const res = await POST(
         makeRequest({ email: "test@test.com", rut: "12345678-9" }),
       );
       expect(res.status).toBe(400);
       const json = await res.json();
       expect(json.error).toBe("RUT inválido");
+      expect(getClientByRut).not.toHaveBeenCalled();
     });
   });
 

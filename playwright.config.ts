@@ -23,10 +23,10 @@ export default defineConfig({
   webServer: {
     command: "pnpm dev",
     url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     env: {
-      DATABASE_URL: process.env.DATABASE_URL_TEST ?? "",
-      JWT_SECRET: process.env.JWT_SECRET ?? "test-jwt-secret-for-e2e-32chars!!",
+      DATABASE_URL: process.env.DATABASE_URL_TEST!,
+      JWT_SECRET: "test-jwt-secret-for-e2e-32chars!!",
       NODE_ENV: "test",
     },
   },
