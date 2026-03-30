@@ -1,6 +1,16 @@
 import { config } from "dotenv";
 import { execSync } from "child_process";
 
+/**
+ * Prepare the test environment and apply the current schema to the test database if configured.
+ *
+ * Loads environment variables from `.env.test.local`, sets `process.env.DATABASE_URL` to the
+ * `DATABASE_URL_TEST` value for test workers, and runs the schema push command when a test
+ * database URL is present. If `DATABASE_URL_TEST` is not set, the function logs a warning and
+ * exits without modifying the database.
+ *
+ * @returns Resolves when setup completes
+ */
 export async function setup() {
   config({ path: ".env.test.local", override: true });
 
