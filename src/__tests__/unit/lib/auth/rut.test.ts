@@ -22,11 +22,18 @@ describe("validateRut", () => {
     expect(validateRut("111111111")).toBe(true);
     expect(validateRut("11111111-1")).toBe(true);
     expect(validateRut("76354771-K")).toBe(true);
+    expect(validateRut("11.111.111-1")).toBe(true);
+    expect(validateRut("76.354.771-K")).toBe(true);
+    expect(validateRut("76.354.771-k")).toBe(true);
   });
 
   it("rejects invalid check digit", () => {
     expect(validateRut("123456789")).toBe(false);
     expect(validateRut("12345678-9")).toBe(false);
+  });
+
+  it("rejects invalid check digit in formatted RUT", () => {
+    expect(validateRut("12.345.678-9")).toBe(false);
   });
 
   it("rejects wrong length", () => {
