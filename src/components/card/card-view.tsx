@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { MembershipCard } from "@/components/card/membership-card";
+import { WalletButtons } from "@/components/card/wallet-buttons";
 import { BrandLogo } from "@/components/login/brand-logo";
 import { LogOutIcon } from "lucide-react";
 
@@ -58,6 +59,8 @@ export function CardView({ user }: CardViewProps) {
           rut={user.rut}
           clubWilierNumber={user.clubWilierNumber}
         />
+
+        {isMember && <WalletButtons />}
 
         {!isMember && (
           <div className="text-center px-4 py-3 rounded-lg bg-white/5 border border-white/10">
