@@ -82,8 +82,11 @@ export function LoginForm({
       setRut(cleaned);
       return;
     }
-    const body = cleaned.slice(0, -1);
-    const dv = cleaned.slice(-1).toUpperCase();
+    const lastChar = cleaned.slice(-1);
+    const isDv = /[0-9kK]/.test(lastChar);
+    const dv = isDv ? lastChar.toUpperCase() : "";
+    const bodyPart = isDv ? cleaned.slice(0, -1) : cleaned;
+    const body = bodyPart.replace(/\D/g, "").slice(-8);
     const formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     setRut(`${formattedBody}-${dv}`);
   };
