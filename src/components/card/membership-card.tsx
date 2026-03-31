@@ -54,6 +54,7 @@ export function MembershipCard({
                   width={180}
                   height={107}
                   className="object-contain w-auto h-16"
+                  loading="eager"
                 />
               </div>
             </a>
