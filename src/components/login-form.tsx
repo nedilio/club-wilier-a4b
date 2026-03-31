@@ -76,6 +76,21 @@ export function LoginForm({
     }
   };
 
+  const handleRutChange = (value: string) => {
+    const cleaned = value.replace(/[^0-9kK]/g, "");
+    if (cleaned.length < 2) {
+      setRut(cleaned);
+      return;
+    }
+    const lastChar = cleaned.slice(-1);
+    const isDv = /[0-9kK]/.test(lastChar);
+    const dv = isDv ? lastChar.toUpperCase() : "";
+    const bodyPart = isDv ? cleaned.slice(0, -1) : cleaned;
+    const body = bodyPart.replace(/\D/g, "").slice(-8);
+    const formattedBody = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    setRut(`${formattedBody}-${dv}`);
+  };
+
   const handleBack = () => {
     setStep("credentials");
     setOtp("");
@@ -110,7 +125,8 @@ export function LoginForm({
               type="text"
               placeholder="RUT (ej: 12.345.678-9)"
               value={rut}
-              onChange={(e) => setRut(e.target.value)}
+              onChange={(e) => handleRutChange(e.target.value)}
+              maxLength={12}
               required
               className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/40 focus:ring-white/20"
             />
