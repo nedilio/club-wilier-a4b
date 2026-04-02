@@ -78,8 +78,7 @@ export function MembershipCard({
             )}
             <div>
               <h2 className="text-lg font-bold tracking-wide text-white uppercase">
-                {/* {firstName} {lastName} */}
-                MARCOS EDUARDO BUENO LOPEZ
+                {firstName} {lastName}
               </h2>
               <p className="text-sm text-white/50 font-mono">
                 {formatRut(rut)}
