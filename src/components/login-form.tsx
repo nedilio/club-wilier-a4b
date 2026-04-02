@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [step, setStep] = useState<"credentials" | "otp">("credentials");
   const [email, setEmail] = useState("");
   const [rut, setRut] = useState("");
@@ -26,11 +27,14 @@ export function LoginForm({
     setError("");
     setLoading(true);
 
+    abortControllerRef.current = new AbortController();
+
     try {
       const response = await fetch("/api/auth/request-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, rut }),
+        signal: abortControllerRef.current.signal,
       });
 
       const data = await response.json();
@@ -42,7 +46,8 @@ export function LoginForm({
 
       setMessage(data.message || "Código enviado");
       setStep("otp");
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return;
       setError("Error de conexión");
     } finally {
       setLoading(false);
@@ -92,10 +97,12 @@ export function LoginForm({
   };
 
   const handleBack = () => {
+    abortControllerRef.current?.abort();
     setStep("credentials");
     setOtp("");
     setError("");
     setMessage("");
+    setLoading(false);
   };
 
   return (
@@ -111,7 +118,11 @@ export function LoginForm({
       </div>
 
       {step === "credentials" ? (
-        <form onSubmit={handleRequestOtp} className="flex flex-col gap-4">
+        <form
+          key="credentials"
+          onSubmit={handleRequestOtp}
+          className="flex flex-col gap-4"
+        >
           <div className="space-y-2">
             <Input
               type="email"
@@ -163,7 +174,11 @@ export function LoginForm({
           </p>
         </form>
       ) : (
-        <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
+        <form
+          key="otp"
+          onSubmit={handleVerifyOtp}
+          className="flex flex-col gap-4"
+        >
           <div className="space-y-3">
             <p className="text-sm text-white/60 text-center">
               Ingresa el código de 6 dígitos que enviamos a{" "}
