@@ -72,13 +72,14 @@ export function MembershipCard({
 
           <div className="flex items-center gap-4">
             {isMember && (
-              <div className="size-16 rounded-full bg-white/10 flex items-center justify-center">
+              <div className="size-16 shrink-0 rounded-full bg-white/10 flex items-center justify-center">
                 <BrandLogo size="xs" />
               </div>
             )}
             <div>
               <h2 className="text-lg font-bold tracking-wide text-white uppercase">
-                {firstName} {lastName}
+                {/* {firstName} {lastName} */}
+                MARCOS EDUARDO BUENO LOPEZ
               </h2>
               <p className="text-sm text-white/50 font-mono">
                 {formatRut(rut)}
