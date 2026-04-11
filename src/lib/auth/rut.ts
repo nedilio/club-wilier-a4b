@@ -15,8 +15,15 @@ export function validateRut(rut: string): boolean {
     multiplier = multiplier === 7 ? 2 : multiplier + 1;
   }
 
-  const expectedDv = (11 - (sum % 11)).toString();
-  const calculatedDv = expectedDv === "10" ? "k" : expectedDv;
+  const expectedDvNumber = 11 - (sum % 11);
+  let calculatedDv: string;
+  if (expectedDvNumber === 11) {
+    calculatedDv = "0";
+  } else if (expectedDvNumber === 10) {
+    calculatedDv = "k";
+  } else {
+    calculatedDv = expectedDvNumber.toString();
+  }
 
   return dv === calculatedDv;
 }

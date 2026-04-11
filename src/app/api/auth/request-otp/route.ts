@@ -28,7 +28,9 @@ export async function POST(request: NextRequest) {
     const { email, rut } = result.data;
 
     const cleanedRut = cleanRut(rut);
+    console.log(cleanedRut);
     if (!validateRut(cleanedRut)) {
+      console.log(validateRut(cleanedRut));
       return NextResponse.json(
         { success: false, error: "RUT inválido" },
         { status: 400 },
@@ -40,7 +42,7 @@ export async function POST(request: NextRequest) {
     if (!bsaleClient) {
       return NextResponse.json(
         { success: false, error: "RUT no encontrado" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
