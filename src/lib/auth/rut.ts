@@ -2,7 +2,9 @@ export function validateRut(rut: string): boolean {
   const withoutHyphen = rut.replace(/-/g, "");
   const cleaned = withoutHyphen.replace(/[^0-9kK]/g, "");
 
-  if (cleaned.length !== 9) return false;
+  // Chilean RUTs: 6-9 digits + 1 check digit = 7-10 characters total
+  // Most common: 8 digits + 1 check digit = 9 characters
+  if (cleaned.length < 7 || cleaned.length > 10) return false;
 
   const body = cleaned.slice(0, -1);
   const dv = cleaned.slice(-1).toLowerCase();

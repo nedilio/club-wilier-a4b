@@ -18,6 +18,7 @@ describe("cleanRut", () => {
 // 22222222-2 : sum=64, 11-(64%11)=2 ✓
 // 76354771-K : sum=155, 11-(155%11)=10 → k ✓
 // 16013729-0 : sum=88, 11-(88%11)=11 → 0 ✓
+// 6379105-9 : sum=134, 11-(134%11)=9 ✓
 describe("validateRut", () => {
   it("accepts valid RUTs", () => {
     expect(validateRut("111111111")).toBe(true);
@@ -29,6 +30,9 @@ describe("validateRut", () => {
     expect(validateRut("160137290")).toBe(true);
     expect(validateRut("16013729-0")).toBe(true);
     expect(validateRut("16.013.729-0")).toBe(true);
+    expect(validateRut("63791059")).toBe(true);
+    expect(validateRut("6379105-9")).toBe(true);
+    expect(validateRut("6.379.105-9")).toBe(true);
   });
 
   it("rejects invalid check digit", () => {
