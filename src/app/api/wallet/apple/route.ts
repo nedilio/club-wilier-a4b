@@ -74,7 +74,8 @@ export async function GET() {
       certs,
     );
 
-    return new Response(passBuffer, {
+    return new NextResponse(new Uint8Array(passBuffer), {
+      status: 200,
       headers: {
         "Content-Type": "application/vnd.apple.pkpass",
         "Content-Disposition": 'attachment; filename="club-wilier.pkpass"',
