@@ -43,7 +43,7 @@ export function formatRut(rut: string): string {
 }
 
 export function cleanRut(rut: string): string {
-  return rut.replace(/./g, "").replace(/s/g, "").toLowerCase();
+  return rut.replace(/\./g, "").replace(/\s/g, "").toLowerCase();
 }
 
 export function maskRut(rut: string): string {
