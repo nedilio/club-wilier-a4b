@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { WalletButtons } from "@/components/card/wallet-buttons";
 
 afterEach(() => {
@@ -19,22 +19,34 @@ describe("WalletButtons", () => {
       );
     });
 
-    it("shows Apple Wallet button", () => {
+    it("shows Apple Wallet button", async () => {
       render(<WalletButtons />);
-      expect(
-        screen.getByRole("link", { name: /apple wallet/i }),
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByRole("link", { name: /apple wallet/i }),
+        ).toBeInTheDocument();
+      });
     });
 
-    it("does not show Google Wallet button", () => {
+    it("does not show Google Wallet button", async () => {
       render(<WalletButtons />);
+      await waitFor(() => {
+        expect(
+          screen.getByRole("link", { name: /apple wallet/i }),
+        ).toBeInTheDocument();
+      });
       expect(
         screen.queryByRole("link", { name: /google wallet/i }),
       ).not.toBeInTheDocument();
     });
 
-    it("Apple Wallet link points to /api/wallet/apple", () => {
+    it("Apple Wallet link points to /api/wallet/apple", async () => {
       render(<WalletButtons />);
+      await waitFor(() => {
+        expect(
+          screen.getByRole("link", { name: /apple wallet/i }),
+        ).toBeInTheDocument();
+      });
       expect(
         screen.getByRole("link", { name: /apple wallet/i }),
       ).toHaveAttribute("href", "/api/wallet/apple");
@@ -48,22 +60,34 @@ describe("WalletButtons", () => {
       );
     });
 
-    it("shows Google Wallet button", () => {
+    it("shows Google Wallet button", async () => {
       render(<WalletButtons />);
-      expect(
-        screen.getByRole("link", { name: /google wallet/i }),
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByRole("link", { name: /google wallet/i }),
+        ).toBeInTheDocument();
+      });
     });
 
-    it("does not show Apple Wallet button", () => {
+    it("does not show Apple Wallet button", async () => {
       render(<WalletButtons />);
+      await waitFor(() => {
+        expect(
+          screen.getByRole("link", { name: /google wallet/i }),
+        ).toBeInTheDocument();
+      });
       expect(
         screen.queryByRole("link", { name: /apple wallet/i }),
       ).not.toBeInTheDocument();
     });
 
-    it("Google Wallet link points to /api/wallet/google", () => {
+    it("Google Wallet link points to /api/wallet/google", async () => {
       render(<WalletButtons />);
+      await waitFor(() => {
+        expect(
+          screen.getByRole("link", { name: /google wallet/i }),
+        ).toBeInTheDocument();
+      });
       expect(
         screen.getByRole("link", { name: /google wallet/i }),
       ).toHaveAttribute("href", "/api/wallet/google");
@@ -77,15 +101,22 @@ describe("WalletButtons", () => {
       );
     });
 
-    it("shows Apple Wallet button", () => {
+    it("shows Apple Wallet button", async () => {
       render(<WalletButtons />);
-      expect(
-        screen.getByRole("link", { name: /apple wallet/i }),
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByRole("link", { name: /apple wallet/i }),
+        ).toBeInTheDocument();
+      });
     });
 
-    it("does not show Google Wallet button", () => {
+    it("does not show Google Wallet button", async () => {
       render(<WalletButtons />);
+      await waitFor(() => {
+        expect(
+          screen.getByRole("link", { name: /apple wallet/i }),
+        ).toBeInTheDocument();
+      });
       expect(
         screen.queryByRole("link", { name: /google wallet/i }),
       ).not.toBeInTheDocument();
@@ -99,14 +130,16 @@ describe("WalletButtons", () => {
       );
     });
 
-    it("shows both wallet buttons", () => {
+    it("shows both wallet buttons", async () => {
       render(<WalletButtons />);
-      expect(
-        screen.getByRole("link", { name: /apple wallet/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("link", { name: /google wallet/i }),
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByRole("link", { name: /apple wallet/i }),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("link", { name: /google wallet/i }),
+        ).toBeInTheDocument();
+      });
     });
   });
 });

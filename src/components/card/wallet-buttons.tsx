@@ -15,7 +15,7 @@ async function detectPlatform(): Promise<Platform> {
 }
 
 export function WalletButtons() {
-  const [platform, setPlatform] = useState<Platform>("both");
+  const [platform, setPlatform] = useState<Platform>(null);
 
   useEffect(() => {
     async function getPlatform() {
@@ -40,68 +40,65 @@ export function WalletButtons() {
         </a>
       )}
 
-      {
-        (platform === "google" || platform === "both") && null
-        // <a
-        //   href="/api/wallet/google"
-        //   aria-label="Guardar en Google Wallet"
-        //   className="block"
-        // >
-        //   {/* Official-style "Save to Google Wallet" badge */}
-        //   <svg
-        //     xmlns="http://www.w3.org/2000/svg"
-        //     viewBox="0 0 220 62"
-        //     width="220"
-        //     height="62"
-        //     className="h-12 w-auto"
-        //     role="img"
-        //     aria-label="Save to Google Wallet"
-        //   >
-        //     <rect
-        //       width="220"
-        //       height="62"
-        //       rx="10"
-        //       fill="#404040"
-        //       stroke="white"
-        //       strokeWidth="1"
-        //       strokeOpacity="0.15"
-        //     />
-        //     {/* Google "G" color dots */}
-        //     <circle cx="32" cy="31" r="10" fill="none" />
-        //     <text
-        //       x="27"
-        //       y="36"
-        //       fill="white"
-        //       fontSize="18"
-        //       fontFamily="'Google Sans', Roboto, sans-serif"
-        //       fontWeight="700"
-        //     >
-        //       G
-        //     </text>
-        //     <text
-        //       x="52"
-        //       y="26"
-        //       fill="white"
-        //       fontSize="10"
-        //       fontFamily="'Google Sans', Roboto, sans-serif"
-        //       fontWeight="400"
-        //       letterSpacing="0.5"
-        //     >
-        //       Save to
-        //     </text>
-        //     <text
-        //       x="52"
-        //       y="42"
-        //       fill="white"
-        //       fontSize="16"
-        //       fontFamily="'Google Sans', Roboto, sans-serif"
-        //       fontWeight="600"
-        //     >
-        //       Google Wallet
-        //     </text>
-        //   </svg>
-        // </a>
-      }
+      {(platform === "google" || platform === "both") && (
+        <a
+          href="/api/wallet/google"
+          aria-label="Guardar en Google Wallet"
+          className="block"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 220 62"
+            width="220"
+            height="62"
+            className="h-12 w-auto"
+            role="img"
+            aria-label="Save to Google Wallet"
+          >
+            <rect
+              width="220"
+              height="62"
+              rx="10"
+              fill="#404040"
+              stroke="white"
+              strokeWidth="1"
+              strokeOpacity="0.15"
+            />
+            <circle cx="32" cy="31" r="10" fill="none" />
+            <text
+              x="27"
+              y="36"
+              fill="white"
+              fontSize="18"
+              fontFamily="'Google Sans', Roboto, sans-serif"
+              fontWeight="700"
+            >
+              G
+            </text>
+            <text
+              x="52"
+              y="26"
+              fill="white"
+              fontSize="10"
+              fontFamily="'Google Sans', Roboto, sans-serif"
+              fontWeight="400"
+              letterSpacing="0.5"
+            >
+              Save to
+            </text>
+            <text
+              x="52"
+              y="42"
+              fill="white"
+              fontSize="16"
+              fontFamily="'Google Sans', Roboto, sans-serif"
+              fontWeight="600"
+            >
+              Google Wallet
+            </text>
+          </svg>
+        </a>
+      )}
     </div>
   );
 }
