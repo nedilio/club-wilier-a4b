@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const result = requestSchema.safeParse(body);
-    console.log({ body, result });
 
     if (!result.success) {
       return NextResponse.json(
@@ -28,9 +27,7 @@ export async function POST(request: NextRequest) {
     const { email, rut } = result.data;
 
     const cleanedRut = cleanRut(rut);
-    console.log(cleanedRut);
     if (!validateRut(cleanedRut)) {
-      console.log(validateRut(cleanedRut));
       return NextResponse.json(
         { success: false, error: "RUT inválido" },
         { status: 400 },
