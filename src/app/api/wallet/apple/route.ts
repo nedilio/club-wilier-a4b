@@ -4,12 +4,26 @@ import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth/jwt";
 import { generateApplePass } from "@/lib/wallet/apple";
 
+function normalizePemFromBase64(base64Value: string, label: string) {
+  const decoded = Buffer.from(base64Value, "base64");
+  const decodedText = decoded.toString("utf-8");
+
+  if (decodedText.includes("BEGIN")) {
+    return decoded;
+  }
+
+  const lines = base64Value.match(/.{1,64}/g) ?? [];
+  const pem = `-----BEGIN ${label}-----\n${lines.join("\n")}\n-----END ${label}-----\n`;
+  return Buffer.from(pem, "utf-8");
+}
+
 function getAppleCerts() {
   const passTypeId = process.env.APPLE_PASS_TYPE_ID;
   const teamIdentifier = process.env.APPLE_TEAM_IDENTIFIER;
   const wwdrBase64 = process.env.APPLE_WWDR_CERTIFICATE;
   const certBase64 = process.env.APPLE_CERTIFICATE;
   const keyBase64 = process.env.APPLE_PRIVATE_KEY;
+  const signerKeyPassphrase = process.env.APPLE_PRIVATE_KEY_PASSPHRASE;
 
   if (
     !passTypeId ||
@@ -24,9 +38,10 @@ function getAppleCerts() {
   return {
     passTypeId,
     teamIdentifier,
-    wwdr: Buffer.from(wwdrBase64, "base64"),
-    signerCert: Buffer.from(certBase64, "base64"),
+    wwdr: normalizePemFromBase64(wwdrBase64, "CERTIFICATE"),
+    signerCert: normalizePemFromBase64(certBase64, "CERTIFICATE"),
     signerKey: Buffer.from(keyBase64, "base64"),
+    signerKeyPassphrase,
   };
 }
 
@@ -82,7 +97,15 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Apple Wallet error:", error);
+    if (error instanceof Error) {
+      console.error("Apple Wallet error:", {
+        message: error.message,
+        stack: error.stack,
+      });
+    } else {
+      console.error("Apple Wallet error:", error);
+    }
+
     return NextResponse.json(
       { error: "Error al generar el pase" },
       { status: 500 },

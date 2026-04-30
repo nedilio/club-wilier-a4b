@@ -17,6 +17,7 @@ vi.mock("@/lib/wallet/apple", () => ({
 }));
 
 import { GET } from "@/app/api/wallet/apple/route";
+import { generateApplePass } from "@/lib/wallet/apple";
 
 const APPLE_ENV_VARS = [
   "APPLE_PASS_TYPE_ID",
@@ -24,6 +25,7 @@ const APPLE_ENV_VARS = [
   "APPLE_WWDR_CERTIFICATE",
   "APPLE_CERTIFICATE",
   "APPLE_PRIVATE_KEY",
+  "APPLE_PRIVATE_KEY_PASSPHRASE",
 ] as const;
 
 afterEach(async () => {
@@ -89,11 +91,26 @@ describe("GET /api/wallet/apple", () => {
     process.env.APPLE_WWDR_CERTIFICATE = Buffer.from("wwdr").toString("base64");
     process.env.APPLE_CERTIFICATE = Buffer.from("cert").toString("base64");
     process.env.APPLE_PRIVATE_KEY = Buffer.from("key").toString("base64");
+    process.env.APPLE_PRIVATE_KEY_PASSPHRASE = "secret";
 
     const res = await GET();
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Type")).toBe(
       "application/vnd.apple.pkpass",
+    );
+    expect(generateApplePass).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        wwdr: expect.any(Buffer),
+        signerCert: expect.any(Buffer),
+        signerKeyPassphrase: "secret",
+      }),
+    );
+    expect((generateApplePass as ReturnType<typeof vi.fn>).mock.calls[0][1].wwdr.toString("utf-8")).toContain(
+      "BEGIN CERTIFICATE",
+    );
+    expect((generateApplePass as ReturnType<typeof vi.fn>).mock.calls[0][1].signerCert.toString("utf-8")).toContain(
+      "BEGIN CERTIFICATE",
     );
   });
 });

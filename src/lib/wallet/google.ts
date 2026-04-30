@@ -31,7 +31,7 @@ export async function buildGoogleWalletUrl(
     id: classId,
     issuerName: "All4bikers",
     programName: "club wilier",
-    reviewStatus: "UNDER_REVIEW",
+    reviewStatus: "DRAFT",
   };
 
   const loyaltyObject: Record<string, unknown> = {
