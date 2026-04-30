@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AddToAppleSVG from "./add-to-apple-svg";
 
 type Platform = "apple" | "google" | "both" | null;
 
-function detectPlatform(): Platform {
+async function detectPlatform(): Promise<Platform> {
   const ua = navigator.userAgent;
   if (/iPad|iPhone|iPod/.test(ua)) return "apple";
   if (/Macintosh/.test(ua) && /Safari/.test(ua) && !/Chrome/.test(ua))
@@ -14,10 +15,14 @@ function detectPlatform(): Platform {
 }
 
 export function WalletButtons() {
-  const [platform, setPlatform] = useState<Platform>(null);
+  const [platform, setPlatform] = useState<Platform>("both");
 
   useEffect(() => {
-    setPlatform(detectPlatform());
+    async function getPlatform() {
+      const platform = await detectPlatform();
+      setPlatform(platform);
+    }
+    getPlatform();
   }, []);
 
   // Renders null on server and before mount — prevents hydration mismatch
@@ -31,119 +36,72 @@ export function WalletButtons() {
           aria-label="Agregar a Apple Wallet"
           className="block"
         >
-          {/* Official-style "Add to Apple Wallet" badge */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 200 62"
-            width="200"
-            height="62"
-            className="h-12 w-auto"
-            role="img"
-            aria-label="Add to Apple Wallet"
-          >
-            <rect
-              width="200"
-              height="62"
-              rx="10"
-              fill="black"
-              stroke="white"
-              strokeWidth="1"
-              strokeOpacity="0.2"
-            />
-            {/* Apple logo */}
-            <text
-              x="30"
-              y="35"
-              fill="white"
-              fontSize="22"
-              fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
-            ></text>
-            <text
-              x="55"
-              y="26"
-              fill="white"
-              fontSize="10"
-              fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
-              fontWeight="400"
-              letterSpacing="0.5"
-            >
-              Add to
-            </text>
-            <text
-              x="55"
-              y="42"
-              fill="white"
-              fontSize="16"
-              fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
-              fontWeight="600"
-            >
-              Apple Wallet
-            </text>
-          </svg>
+          <AddToAppleSVG className="h-12 w-auto" />
         </a>
       )}
 
-      {(platform === "google" || platform === "both") && (
-        <a
-          href="/api/wallet/google"
-          aria-label="Guardar en Google Wallet"
-          className="block"
-        >
-          {/* Official-style "Save to Google Wallet" badge */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 220 62"
-            width="220"
-            height="62"
-            className="h-12 w-auto"
-            role="img"
-            aria-label="Save to Google Wallet"
-          >
-            <rect
-              width="220"
-              height="62"
-              rx="10"
-              fill="#404040"
-              stroke="white"
-              strokeWidth="1"
-              strokeOpacity="0.15"
-            />
-            {/* Google "G" color dots */}
-            <circle cx="32" cy="31" r="10" fill="none" />
-            <text
-              x="27"
-              y="36"
-              fill="white"
-              fontSize="18"
-              fontFamily="'Google Sans', Roboto, sans-serif"
-              fontWeight="700"
-            >
-              G
-            </text>
-            <text
-              x="52"
-              y="26"
-              fill="white"
-              fontSize="10"
-              fontFamily="'Google Sans', Roboto, sans-serif"
-              fontWeight="400"
-              letterSpacing="0.5"
-            >
-              Save to
-            </text>
-            <text
-              x="52"
-              y="42"
-              fill="white"
-              fontSize="16"
-              fontFamily="'Google Sans', Roboto, sans-serif"
-              fontWeight="600"
-            >
-              Google Wallet
-            </text>
-          </svg>
-        </a>
-      )}
+      {
+        (platform === "google" || platform === "both") && null
+        // <a
+        //   href="/api/wallet/google"
+        //   aria-label="Guardar en Google Wallet"
+        //   className="block"
+        // >
+        //   {/* Official-style "Save to Google Wallet" badge */}
+        //   <svg
+        //     xmlns="http://www.w3.org/2000/svg"
+        //     viewBox="0 0 220 62"
+        //     width="220"
+        //     height="62"
+        //     className="h-12 w-auto"
+        //     role="img"
+        //     aria-label="Save to Google Wallet"
+        //   >
+        //     <rect
+        //       width="220"
+        //       height="62"
+        //       rx="10"
+        //       fill="#404040"
+        //       stroke="white"
+        //       strokeWidth="1"
+        //       strokeOpacity="0.15"
+        //     />
+        //     {/* Google "G" color dots */}
+        //     <circle cx="32" cy="31" r="10" fill="none" />
+        //     <text
+        //       x="27"
+        //       y="36"
+        //       fill="white"
+        //       fontSize="18"
+        //       fontFamily="'Google Sans', Roboto, sans-serif"
+        //       fontWeight="700"
+        //     >
+        //       G
+        //     </text>
+        //     <text
+        //       x="52"
+        //       y="26"
+        //       fill="white"
+        //       fontSize="10"
+        //       fontFamily="'Google Sans', Roboto, sans-serif"
+        //       fontWeight="400"
+        //       letterSpacing="0.5"
+        //     >
+        //       Save to
+        //     </text>
+        //     <text
+        //       x="52"
+        //       y="42"
+        //       fill="white"
+        //       fontSize="16"
+        //       fontFamily="'Google Sans', Roboto, sans-serif"
+        //       fontWeight="600"
+        //     >
+        //       Google Wallet
+        //     </text>
+        //   </svg>
+        // </a>
+      }
     </div>
   );
 }
