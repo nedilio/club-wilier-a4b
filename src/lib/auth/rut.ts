@@ -43,5 +43,17 @@ export function formatRut(rut: string): string {
 }
 
 export function cleanRut(rut: string): string {
-  return rut.replace(/\./g, "").replace(/\s/g, "").toLowerCase();
+  return rut.replace(/./g, "").replace(/s/g, "").toLowerCase();
+}
+
+export function maskRut(rut: string): string {
+  const cleaned = rut.replace(/[^0-9kK]/g, "");
+  if (cleaned.length < 4) return "*".repeat(cleaned.length);
+
+  const body = cleaned.slice(0, -1);
+  const dv = cleaned.slice(-1).toUpperCase();
+
+  const maskedBody = "*".repeat(body.length - 3) + body.slice(-3);
+
+  return `${maskedBody}-${dv}`;
 }

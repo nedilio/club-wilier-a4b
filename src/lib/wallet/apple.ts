@@ -1,0 +1,107 @@
+import { PKPass } from "passkit-generator";
+import { maskRut } from "@/lib/auth/rut";
+import { getImageBuffer } from "../server-utils";
+
+export interface ApplePassUser {
+  firstName: string;
+  lastName: string;
+  rut: string;
+  clubWilierNumber: string;
+  qrToken: string | null;
+}
+
+export interface AppleCerts {
+  wwdr: Buffer;
+  signerCert: Buffer;
+  signerKey: Buffer;
+  signerKeyPassphrase?: string;
+  passTypeId: string;
+  teamIdentifier: string;
+}
+
+function requiresPassphrase(signerKey: Buffer) {
+  return signerKey.toString("utf-8").includes("BEGIN ENCRYPTED PRIVATE KEY");
+}
+
+export function generateApplePass(
+  user: ApplePassUser,
+  certs: AppleCerts,
+): Buffer {
+  if (requiresPassphrase(certs.signerKey) && !certs.signerKeyPassphrase) {
+    throw new Error(
+      "Apple private key is encrypted. Configure APPLE_PRIVATE_KEY_PASSPHRASE.",
+    );
+  }
+
+  const pass = new PKPass(
+    {
+      "icon.png": getImageBuffer("logos/wilier-logo.jpeg"),
+      "icon@2x.png": getImageBuffer("logos/wilier-logo.jpeg"),
+      "icon@3x.png": getImageBuffer("logos/wilier-logo.jpeg"),
+      "logo.png": getImageBuffer("logos/wilier-text-logo.png"),
+      "logo@2x.png": getImageBuffer("logos/wilier-text-logo.png"),
+      "background.png": getImageBuffer("background-pass.png"),
+      "background@2x.png": getImageBuffer("background-pass.png"),
+    },
+    {
+      wwdr: certs.wwdr,
+      signerCert: certs.signerCert,
+      signerKey: certs.signerKey,
+      signerKeyPassphrase: certs.signerKeyPassphrase,
+    },
+    {
+      passTypeIdentifier: certs.passTypeId,
+      teamIdentifier: certs.teamIdentifier,
+      serialNumber: user.rut,
+      organizationName: "Club Wilier",
+      description: "Tarjeta de Socio Club Wilier",
+      // webServiceURL: `${process.env.NEXT_PUBLIC_BASE_URL}/api/passes/`,
+      backgroundColor: "rgb(18, 28, 43)",
+      foregroundColor: "rgb(255, 255, 255)",
+      labelColor: "rgb(150, 160, 180)",
+      sharingProhibited: true,
+    },
+  );
+
+  pass.type = "generic";
+
+  pass.headerFields.push({
+    key: "member",
+    label: "SOCIO",
+    value: `#${user.clubWilierNumber}`,
+  });
+
+  pass.primaryFields.push({
+    key: "name",
+    label: "NOMBRE",
+    value: `${user.firstName} ${user.lastName}`.toUpperCase(),
+  });
+
+  pass.secondaryFields.push({
+    key: "rut",
+    label: "RUT",
+    value: maskRut(user.rut),
+  });
+
+  pass.backFields.push({
+    key: "org",
+    label: "Club",
+    value: "All4Bikers Chile",
+  });
+
+  pass.backFields.push({
+    key: "website",
+    label: "All4bikers",
+    value: "http://www.all4bikers.cl",
+  });
+
+  if (user.qrToken) {
+    pass.setBarcodes({
+      format: "PKBarcodeFormatQR",
+      message: `${process.env.NEXT_PUBLIC_BASE_URL ?? "http://192.168.1.165:3000"}/api/verify/${user.qrToken}`,
+      messageEncoding: "iso-8859-1",
+    });
+  }
+
+  return pass.getAsBuffer();
+}
