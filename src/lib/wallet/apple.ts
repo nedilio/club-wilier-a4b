@@ -92,14 +92,15 @@ export function generateApplePass(
   pass.backFields.push({
     key: "website",
     label: "All4bikers",
-    value: "http://www.all4bikers.cl",
+    value: "https://www.all4bikers.cl",
   });
 
   if (user.qrToken) {
     pass.setBarcodes({
       format: "PKBarcodeFormatQR",
-      message: `${process.env.NEXT_PUBLIC_BASE_URL ?? "http://192.168.1.165:3000"}/api/verify/${user.qrToken}`,
+      message: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://192.168.1.165:3000"}/api/verify/${user.qrToken}`,
       messageEncoding: "iso-8859-1",
+      altText: "All4bikers",
     });
   }
 
