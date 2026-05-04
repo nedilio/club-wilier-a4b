@@ -32,6 +32,22 @@ export const sessions = pgTable("sessions", {
   createdAt: timestamp("createdAt", { mode: "date" }).notNull(),
 });
 
+export const walletRegistrations = pgTable("wallet_registrations", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.rut),
+  platform: text("platform").notNull(),
+  serialNumber: text("serialNumber").notNull(),
+  deviceId: text("deviceId").notNull(),
+  pushToken: text("pushToken").notNull(),
+  authToken: text("authToken").notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" })
+    .notNull()
+    .defaultNow(),
+});
+
 export type User = typeof users.$inferSelect;
 export type OtpCode = typeof otpCodes.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
+export type WalletRegistration = typeof walletRegistrations.$inferSelect;
