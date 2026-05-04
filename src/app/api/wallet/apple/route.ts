@@ -17,7 +17,7 @@ function normalizePemFromBase64(base64Value: string, label: string) {
   return Buffer.from(pem, "utf-8");
 }
 
-function getAppleCerts() {
+export function getAppleCerts() {
   const passTypeId = process.env.APPLE_PASS_TYPE_ID;
   const teamIdentifier = process.env.APPLE_TEAM_IDENTIFIER;
   const wwdrBase64 = process.env.APPLE_WWDR_CERTIFICATE;
