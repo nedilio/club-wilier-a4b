@@ -26,11 +26,16 @@ function requiresPassphrase(signerKey: Buffer) {
 export function generateApplePass(
   user: ApplePassUser,
   certs: AppleCerts,
+  newMessage?: string,
 ): Buffer {
   if (requiresPassphrase(certs.signerKey) && !certs.signerKeyPassphrase) {
     throw new Error(
       "Apple private key is encrypted. Configure APPLE_PRIVATE_KEY_PASSPHRASE.",
     );
+  }
+
+  if (!user.qrToken) {
+    throw new Error("User does not have a QR token.");
   }
 
   const pass = new PKPass(
@@ -50,12 +55,13 @@ export function generateApplePass(
       signerKeyPassphrase: certs.signerKeyPassphrase,
     },
     {
+      authenticationToken: user.qrToken!,
       passTypeIdentifier: certs.passTypeId,
       teamIdentifier: certs.teamIdentifier,
       serialNumber: user.rut,
       organizationName: "Club Wilier",
       description: "Tarjeta de Socio Club Wilier",
-      // webServiceURL: `${process.env.NEXT_PUBLIC_BASE_URL}/api/passes/`,
+      webServiceURL: `${process.env.NEXT_PUBLIC_APP_URL}/api/wallet/apple`,
       backgroundColor: "rgb(18, 28, 43)",
       foregroundColor: "rgb(255, 255, 255)",
       labelColor: "rgb(150, 160, 180)",
@@ -95,10 +101,17 @@ export function generateApplePass(
     value: "https://www.all4bikers.cl",
   });
 
+  pass.backFields.push({
+    key: "update",
+    label: "Notificacion",
+    value: newMessage ?? "No hay novedades en tu cuenta",
+    changeMessage: "Información actualizada %@",
+  });
+
   if (user.qrToken) {
     pass.setBarcodes({
       format: "PKBarcodeFormatQR",
-      message: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://192.168.1.165:3000"}/api/verify/${user.qrToken}`,
+      message: `${process.env.NEXT_PUBLIC_APP_URL}/api/verify/${user.qrToken}`,
       messageEncoding: "iso-8859-1",
       altText: "All4bikers",
     });
