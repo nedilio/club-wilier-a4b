@@ -11,6 +11,7 @@ export async function GET(
     where: eq(schema.users.qrToken, id),
     columns: {
       qrToken: true,
+      rut: true,
     },
   });
   if (!res) {
@@ -19,8 +20,10 @@ export async function GET(
       { status: 400 },
     );
   }
-  return NextResponse.json({
-    success: true,
-    message: "Verification successful",
-  });
+  // Construyes la URL de destino
+  const url = request.nextUrl.clone();
+  url.pathname = "/verify";
+  url.searchParams.set("rut", res.rut);
+
+  return NextResponse.redirect(url, 307);
 }
