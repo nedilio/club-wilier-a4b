@@ -93,7 +93,7 @@ describe("POST /api/wallet/apple/push", () => {
     await expect(response.json()).resolves.toMatchObject({
       success: true,
       environment: "production",
-      sent: 1,
+      sent: [{ device: "push-token" }],
     });
   });
 });
