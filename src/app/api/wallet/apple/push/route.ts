@@ -1,3 +1,4 @@
+import { db } from "@/db";
 import apn from "apn";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -89,13 +90,26 @@ export async function POST(request: NextRequest) {
     notification.priority = 10;
     notification.pushType = "background";
 
-    const result = await apnProvider.send(
-      notification,
-      parsedBody.data.pushToken,
+    const pushTokens = await db.query.walletRegistrations.findMany({
+      columns: {
+        pushToken: true,
+      },
+      where: (walletRegistrations, { eq }) =>
+        eq(walletRegistrations.platform, "APPLE"),
+    });
+
+    const results = await Promise.all(
+      pushTokens.map((pushToken) =>
+        apnProvider.send(notification, pushToken.pushToken),
+      ),
     );
 
-    if (result.failed.length > 0) {
-      const reasons = result.failed
+    const allFailed = results.flatMap((r) => r.failed);
+    const allSent = results.flatMap((r) => r.sent);
+
+    if (allFailed.length > 0) {
+      // Extraemos las razones de los fallos
+      const reasons = allFailed
         .map((entry) => entry.response?.reason)
         .filter(Boolean);
 
@@ -104,9 +118,11 @@ export async function POST(request: NextRequest) {
           success: false,
           environment: production ? "production" : "sandbox",
           topic: config.topic,
-          error: result.failed,
+          totalRequested: pushTokens.length,
+          failedCount: allFailed.length,
+          errors: allFailed,
           hint: reasons.includes("BadEnvironmentKeyInToken")
-            ? "The pass token belongs to the opposite APNs environment. If this pass was created with development Wallet certificates, send with sandbox. If it was created with production certificates, send with production."
+            ? "El token pertenece al entorno opuesto. Revisa si el certificado es de producción o desarrollo."
             : undefined,
         },
         { status: 502 },
@@ -116,7 +132,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       environment: production ? "production" : "sandbox",
-      sent: result.sent,
+      sentCount: allSent.length,
     });
   } finally {
     apnProvider.shutdown();

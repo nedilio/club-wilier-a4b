@@ -3,7 +3,6 @@ import { generateApplePass } from "@/lib/wallet/apple";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { getAppleCerts } from "../../../../route";
-import { notifications } from "@/db/schema";
 
 export async function GET(
   req: NextRequest,

@@ -102,8 +102,8 @@ export function generateApplePass(
   });
 
   pass.backFields.push({
-    key: "update",
-    label: "Notificacion",
+    key: "updates",
+    label: "Última Información",
     value: newMessage ?? "Bienvenidos al club Wilier de All4Bikers",
     changeMessage: "All4Bikers: %@",
   });
