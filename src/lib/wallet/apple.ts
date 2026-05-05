@@ -105,7 +105,7 @@ export function generateApplePass(
     key: "update",
     label: "Notificacion",
     value: newMessage ?? "No hay novedades en tu cuenta",
-    changeMessage: "Información actualizada %@",
+    changeMessage: "All4Bikers: %@",
   });
 
   if (user.qrToken) {
