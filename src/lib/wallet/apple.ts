@@ -69,7 +69,7 @@ export function generateApplePass(
     },
   );
 
-  pass.type = "generic";
+  pass.type = "eventTicket";
 
   pass.headerFields.push({
     key: "member",
