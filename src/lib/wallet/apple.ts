@@ -104,7 +104,7 @@ export function generateApplePass(
   pass.backFields.push({
     key: "update",
     label: "Notificacion",
-    value: newMessage ?? "No hay novedades en tu cuenta",
+    value: newMessage ?? "Bienvenidos al club Wilier de All4Bikers",
     changeMessage: "All4Bikers: %@",
   });
 
