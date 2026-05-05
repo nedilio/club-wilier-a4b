@@ -53,7 +53,7 @@ export async function GET(
       qrToken: user.qrToken,
     },
     certs,
-    "Bienvenido al club Wilier de All4Bikers",
+    "Bienvenido al club Wilier de All4Bikers!",
   );
 
   return new NextResponse(new Uint8Array(passBuffer), {
