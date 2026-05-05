@@ -2,6 +2,16 @@ import apn from "apn";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+interface AppleWalletNotification extends apn.Notification {
+  pushType?:
+    | "background"
+    | "alert"
+    | "voip"
+    | "complication"
+    | "fileprovider"
+    | "mdm";
+}
+
 export const runtime = "nodejs";
 
 const bodySchema = z.object({
@@ -73,9 +83,11 @@ export async function POST(request: NextRequest) {
   });
 
   try {
-    const notification = new apn.Notification();
+    const notification = new apn.Notification() as AppleWalletNotification;
     notification.topic = config.topic;
     notification.payload = {};
+    notification.priority = 10;
+    notification.pushType = "background";
 
     const result = await apnProvider.send(
       notification,

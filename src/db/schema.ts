@@ -47,7 +47,15 @@ export const walletRegistrations = pgTable("wallet_registrations", {
     .defaultNow(),
 });
 
+export const notifications = pgTable("notifications", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  message: text("message").notNull(),
+  sentAt: timestamp("sentAt", { mode: "date" }).notNull().defaultNow(),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+});
+
 export type User = typeof users.$inferSelect;
 export type OtpCode = typeof otpCodes.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type WalletRegistration = typeof walletRegistrations.$inferSelect;
+export type Notification = typeof notifications.$inferSelect;

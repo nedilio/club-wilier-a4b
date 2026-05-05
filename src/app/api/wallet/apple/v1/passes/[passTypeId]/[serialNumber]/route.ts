@@ -3,6 +3,7 @@ import { generateApplePass } from "@/lib/wallet/apple";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { getAppleCerts } from "../../../../route";
+import { notifications } from "@/db/schema";
 
 export async function GET(
   req: NextRequest,
@@ -43,6 +44,24 @@ export async function GET(
       { status: 503 },
     );
   }
+  const message = await db.query.notifications.findFirst({
+    orderBy: (notifications, { desc }) => [desc(notifications.createdAt)],
+  });
+
+  if (!message) {
+    return NextResponse.json(
+      { error: "No se pudo obtener la notificación" },
+      { status: 500 },
+    );
+  }
+
+  const ifModifiedSince = req.headers.get("if-modified-since");
+  if (ifModifiedSince) {
+    const lastModifiedDate = new Date(ifModifiedSince);
+    if (lastModifiedDate >= message.createdAt) {
+      return new NextResponse(null, { status: 304 });
+    }
+  }
 
   const passBuffer = await generateApplePass(
     {
@@ -53,14 +72,14 @@ export async function GET(
       qrToken: user.qrToken,
     },
     certs,
-    "Bienvenido al club Wilier de All4Bikers!",
+    message.message,
   );
 
   return new NextResponse(new Uint8Array(passBuffer), {
     status: 200,
     headers: {
       "Content-Type": "application/vnd.apple.pkpass",
-      "Last-Modified": new Date().toUTCString(),
+      "Last-Modified": message.createdAt.toUTCString(),
     },
   });
 }
