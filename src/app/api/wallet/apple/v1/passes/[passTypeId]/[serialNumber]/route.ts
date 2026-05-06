@@ -61,8 +61,6 @@ export async function GET(
     }
   }
 
-  console.log("generando nuevo pass");
-
   const passBuffer = await generateApplePass(
     {
       firstName: user.firstName,
@@ -74,9 +72,8 @@ export async function GET(
     certs,
     notificationMessage,
   );
-  console.log("fin");
 
-  return NextResponse.json(new Uint8Array(passBuffer), {
+  return new NextResponse(new Uint8Array(passBuffer), {
     status: 200,
     headers: {
       "Content-Type": "application/vnd.apple.pkpass",
