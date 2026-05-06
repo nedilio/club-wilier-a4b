@@ -22,11 +22,13 @@ export async function GET(
     .where(eq(schema.walletRegistrations.deviceId, deviceId));
 
   if (registrations.length === 0) {
-    return new NextResponse(null, { status: 204 });
+    return NextResponse.json(null, { status: 204 });
   }
 
   return NextResponse.json({
     lastUpdated: new Date().toISOString(),
-    serialNumbers: registrations.map((registration) => registration.serialNumber),
+    serialNumbers: registrations.map(
+      (registration) => registration.serialNumber,
+    ),
   });
 }

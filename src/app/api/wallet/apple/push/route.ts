@@ -1,6 +1,6 @@
-import { db } from "@/db";
+import { db, schema } from "@/db";
 import apn from "apn";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 interface AppleWalletNotification extends apn.Notification {
@@ -16,8 +16,7 @@ interface AppleWalletNotification extends apn.Notification {
 export const runtime = "nodejs";
 
 const bodySchema = z.object({
-  pushToken: z.string().min(1, "pushToken is required"),
-  production: z.boolean().optional(),
+  message: z.string(),
 });
 
 function parseProductionFlag(value: string | undefined) {
@@ -46,8 +45,9 @@ function getPushConfig() {
   };
 }
 
-export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => null);
+export async function POST(request: Request) {
+  const body = await request.json();
+
   const parsedBody = bodySchema.safeParse(body);
 
   if (!parsedBody.success) {
@@ -73,7 +73,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const production = parsedBody.data.production ?? config.production;
   const apnProvider = new apn.Provider({
     token: {
       key: config.key,
@@ -84,9 +83,18 @@ export async function POST(request: NextRequest) {
   });
 
   try {
+    await db.insert(schema.notifications).values({
+      message: parsedBody.data.message,
+    });
+
     const notification = new apn.Notification() as AppleWalletNotification;
     notification.topic = config.topic;
-    notification.payload = {};
+    notification.payload = {
+      aps: {
+        "interruption-level": "active",
+        sound: "default",
+      },
+    };
     notification.priority = 10;
     notification.pushType = "background";
 
@@ -116,7 +124,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          environment: production ? "production" : "sandbox",
+          environment: "production", //config.production ? "production" : "sandbox",
           topic: config.topic,
           totalRequested: pushTokens.length,
           failedCount: allFailed.length,
@@ -131,9 +139,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      environment: production ? "production" : "sandbox",
+      environment: "production", //config.production ? "production" : "sandbox",
       sentCount: allSent.length,
     });
+  } catch (error) {
+    console.error("Error enviando notificaciones push:", error);
+    return NextResponse.json(
+      { success: false, error: "Error enviando notificaciones push" },
+      { status: 500 },
+    );
   } finally {
     apnProvider.shutdown();
   }

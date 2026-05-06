@@ -12,7 +12,10 @@ export async function GET(
   const authHeader = req.headers.get("authorization");
 
   if (passTypeId !== process.env.APPLE_PASS_TYPE_ID) {
-    return new NextResponse(null, { status: 404 });
+    return NextResponse.json(
+      { error: "Invalid pass type identifier" },
+      { status: 404 },
+    );
   }
 
   const [registration] = await db
@@ -23,7 +26,7 @@ export async function GET(
   const requestToken = authHeader?.replace("ApplePass ", "");
 
   if (!registration || requestToken !== registration.authToken) {
-    return new NextResponse(null, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const [user] = await db
@@ -32,7 +35,7 @@ export async function GET(
     .where(eq(schema.users.rut, serialNumber));
 
   if (!user) {
-    return new NextResponse(null, { status: 404 });
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
   const certs = getAppleCerts();
@@ -47,18 +50,14 @@ export async function GET(
     orderBy: (notifications, { desc }) => [desc(notifications.createdAt)],
   });
 
-  if (!message) {
-    return NextResponse.json(
-      { error: "No se pudo obtener la notificación" },
-      { status: 500 },
-    );
-  }
-
+  const notificationMessage =
+    message?.message ?? "Bienvenidos al club Wilier de All4Bikers";
+  const lastModified = message?.createdAt ?? new Date();
   const ifModifiedSince = req.headers.get("if-modified-since");
   if (ifModifiedSince) {
     const lastModifiedDate = new Date(ifModifiedSince);
-    if (lastModifiedDate >= message.createdAt) {
-      return new NextResponse(null, { status: 304 });
+    if (lastModifiedDate >= lastModified) {
+      return NextResponse.json({ error: "Not modified" }, { status: 304 });
     }
   }
 
@@ -71,14 +70,15 @@ export async function GET(
       qrToken: user.qrToken,
     },
     certs,
-    message.message,
+    notificationMessage,
   );
 
-  return new NextResponse(new Uint8Array(passBuffer), {
+  return NextResponse.json(new Uint8Array(passBuffer), {
     status: 200,
     headers: {
       "Content-Type": "application/vnd.apple.pkpass",
-      "Last-Modified": message.createdAt.toUTCString(),
+      "Last-Modified":
+        message?.createdAt.toUTCString() ?? new Date().toUTCString(),
     },
   });
 }
