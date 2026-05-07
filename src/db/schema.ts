@@ -6,6 +6,7 @@ export const users = pgTable("users", {
   lastName: text("lastName").notNull(),
   email: text("email").notNull(),
   clubWilierNumber: text("clubWilierNumber"),
+  membershipName: text("membershipName"),
   qrToken: text("qrToken"),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull(),
@@ -42,9 +43,7 @@ export const walletRegistrations = pgTable("wallet_registrations", {
   deviceId: text("deviceId").notNull(),
   pushToken: text("pushToken").notNull(),
   authToken: text("authToken").notNull(),
-  createdAt: timestamp("createdAt", { mode: "date" })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
 
 export const notifications = pgTable("notifications", {
