@@ -13,6 +13,7 @@ interface User {
   lastName: string;
   email: string;
   clubWilierNumber: string | null;
+  membershipName: string | null;
 }
 
 interface CardViewProps {

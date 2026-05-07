@@ -17,6 +17,7 @@ const getCardUser = cache(async () => {
       lastName: schema.users.lastName,
       email: schema.users.email,
       clubWilierNumber: schema.users.clubWilierNumber,
+      membershipName: schema.users.membershipName,
     })
     .from(schema.users)
     .where(eq(schema.users.rut, session.rut));
