@@ -8,6 +8,7 @@ export interface ApplePassUser {
   rut: string;
   clubWilierNumber: string;
   qrToken: string | null;
+  membershipName: string | null;
 }
 
 export interface AppleCerts {
@@ -80,7 +81,7 @@ export function generateApplePass(
   pass.primaryFields.push({
     key: "club",
     label: "Club",
-    value: "Wilier Privilege Club",
+    value: user?.membershipName ?? "",
   });
 
   pass.secondaryFields.push({

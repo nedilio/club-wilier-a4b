@@ -20,6 +20,7 @@ export interface BSaleClient {
       name: string;
       value: string;
       type: number;
+      href: string;
     }>;
   };
 }
@@ -31,6 +32,9 @@ export interface BSaleClientResponse {
   offset: number;
   items: BSaleClient[];
 }
+
+const CLUB_ATTRIBUTE_ID = 29;
+const CLUB_WILIER_ATTRIBUTE_ID = 27;
 
 export async function getClientByRut(
   rut: string,
@@ -48,7 +52,7 @@ export async function getClientByRut(
         access_token: BSALE_ACCESS_TOKEN!,
         "Content-Type": "application/json",
       },
-      next: { revalidate: 0 },
+      cache: "no-store",
     },
   );
 
@@ -79,4 +83,45 @@ export function extractClubWilierNumber(client: BSaleClient): string | null {
 
 export function isClientActive(client: BSaleClient): boolean {
   return client.state === 0;
+}
+
+export async function getMembershipName(client: BSaleClient) {
+  const rut = client.code;
+  const clientWithAttributes = await getClientByRut(rut);
+
+  const attribute = clientWithAttributes?.attributes?.items.find(
+    (attr) => attr.id === CLUB_ATTRIBUTE_ID,
+  );
+  if (!attribute) {
+    return { clientId: null, membershipName: null };
+  }
+
+  const response = await fetch(attribute.href, {
+    headers: {
+      access_token: BSALE_ACCESS_TOKEN!,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Error obteniendo attributo");
+  }
+
+  const clubAttribute: {
+    details: { items: Array<{ id: number; name: string; value: string }> };
+  } = await response.json();
+
+  const clubAttributeValue = clubAttribute.details.items.find(
+    (attr) => parseInt(attribute.value) === attr.id,
+  );
+
+  if (!clubAttributeValue) {
+    return { clientId: null, membershipName: null };
+  }
+
+  return {
+    clientId: client.id.toString(),
+    membershipName: clubAttributeValue?.name ?? "",
+  };
 }
