@@ -12,6 +12,7 @@ export async function GET(
     columns: {
       qrToken: true,
       rut: true,
+      membershipName: true,
     },
   });
   if (!res) {
@@ -24,6 +25,9 @@ export async function GET(
   const url = request.nextUrl.clone();
   url.pathname = "/verify";
   url.searchParams.set("rut", res.rut);
+  if (res.membershipName) {
+    url.searchParams.set("membership", res.membershipName);
+  }
 
   return NextResponse.redirect(url, 307);
 }

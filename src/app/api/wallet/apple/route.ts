@@ -58,6 +58,7 @@ export async function GET() {
       lastName: schema.users.lastName,
       clubWilierNumber: schema.users.clubWilierNumber,
       qrToken: schema.users.qrToken,
+      membershipName: schema.users.membershipName,
     })
     .from(schema.users)
     .where(eq(schema.users.rut, session.rut));
@@ -85,6 +86,7 @@ export async function GET() {
         rut: user.rut,
         clubWilierNumber: user.clubWilierNumber,
         qrToken: user.qrToken,
+        membershipName: user.membershipName,
       },
       certs,
     );

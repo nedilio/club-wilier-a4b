@@ -67,6 +67,7 @@ export async function GET(
       lastName: user.lastName,
       rut: user.rut,
       clubWilierNumber: user.clubWilierNumber!,
+      membershipName: user.membershipName,
       qrToken: user.qrToken,
     },
     certs,

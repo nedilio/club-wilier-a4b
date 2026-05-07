@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db, schema } from "@/db";
 import { eq, and, isNull, gt } from "drizzle-orm";
 import { verifyOtp } from "@/lib/auth/otp";
-import { getClientByRut, extractClubWilierNumber } from "@/lib/auth/bsale";
+import { getClientByRut, getMembershipName } from "@/lib/auth/bsale";
 import {
   createToken,
   setSessionCookie,
@@ -82,15 +82,16 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date();
-    const clubWilierNumber = extractClubWilierNumber(bsaleClient);
-    const qrToken = clubWilierNumber ? generateQrToken(cleanedRut) : null;
+    const { clientId, membershipName } = await getMembershipName(bsaleClient);
+    const qrToken = clientId ? generateQrToken(cleanedRut) : null;
 
     const userValues = {
       rut: cleanedRut,
       firstName: String(bsaleClient.firstName),
       lastName: String(bsaleClient.lastName),
       email: otpRecord.email,
-      clubWilierNumber: clubWilierNumber ?? null,
+      clubWilierNumber: clientId ?? null,
+      membershipName: membershipName ?? null,
       qrToken: qrToken ?? null,
       createdAt: now,
       updatedAt: now,
@@ -115,6 +116,7 @@ export async function POST(request: NextRequest) {
             lastName: userValues.lastName,
             email: userValues.email,
             clubWilierNumber: userValues.clubWilierNumber,
+            membershipName: userValues.membershipName,
             qrToken: userValues.qrToken,
             updatedAt: now,
             lastSyncedAt: now,
