@@ -40,9 +40,9 @@ export function generateApplePass(
 
   const pass = new PKPass(
     {
-      "icon.png": getImageBuffer("logos/wilier-logo.jpeg"),
-      "icon@2x.png": getImageBuffer("logos/wilier-logo.jpeg"),
-      "icon@3x.png": getImageBuffer("logos/wilier-logo.jpeg"),
+      "icon.png": getImageBuffer("logos/a4b-iso.png"),
+      "icon@2x.png": getImageBuffer("logos/a4b-iso.png"),
+      "icon@3x.png": getImageBuffer("logos/a4b-iso.png"),
       "logo.png": getImageBuffer("All4Bikers_Logo.png"),
       "logo@2x.png": getImageBuffer("All4Bikers_Logo.png"),
       "background.png": getImageBuffer("background-pass.png"),
