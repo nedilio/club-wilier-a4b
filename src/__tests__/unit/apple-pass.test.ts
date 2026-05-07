@@ -10,6 +10,7 @@ describe("generateApplePass", () => {
           lastName: "Perez",
           rut: "12345678K",
           clubWilierNumber: "42",
+          membershipName: "Club Wilier",
           qrToken: "qr-token",
         },
         {

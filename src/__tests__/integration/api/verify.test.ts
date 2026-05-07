@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 
 vi.mock("@/lib/auth/bsale", () => ({
   getClientByRut: vi.fn(),
-  extractClubWilierNumber: vi.fn(),
+  getMembershipName: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
@@ -17,7 +17,7 @@ vi.mock("next/headers", () => ({
   }),
 }));
 
-import { getClientByRut, extractClubWilierNumber } from "@/lib/auth/bsale";
+import { getClientByRut, getMembershipName } from "@/lib/auth/bsale";
 import { POST } from "@/app/api/auth/verify/route";
 
 function makeRequest(body: unknown) {
@@ -96,7 +96,10 @@ describe("POST /api/auth/verify", () => {
   describe("happy path", () => {
     beforeEach(() => {
       vi.mocked(getClientByRut).mockResolvedValue(mockClient);
-      vi.mocked(extractClubWilierNumber).mockReturnValue("42");
+      vi.mocked(getMembershipName).mockResolvedValue({
+        clientId: "42",
+        membershipName: "Premium",
+      });
     });
 
     it("returns 200 on success", async () => {

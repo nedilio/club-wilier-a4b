@@ -3,6 +3,7 @@ import {
   getClientByRut,
   extractClubWilierNumber,
   isClientActive,
+  getMembershipName,
   type BSaleClient,
 } from "@/lib/auth/bsale";
 
@@ -82,7 +83,7 @@ describe("extractClubWilierNumber", () => {
     const client = makeClient({
       id: 42,
       attributes: {
-        items: [{ id: 1, name: "Club Wilier", value: "yes", type: 1 }],
+        items: [{ id: 1, name: "Club Wilier", value: "yes", type: 1, href: "" }],
       },
     });
     expect(extractClubWilierNumber(client)).toBe("42");
@@ -91,7 +92,7 @@ describe("extractClubWilierNumber", () => {
   it("returns null when Club Wilier attribute is absent", () => {
     const client = makeClient({
       attributes: {
-        items: [{ id: 2, name: "Otro atributo", value: "x", type: 1 }],
+        items: [{ id: 2, name: "Otro atributo", value: "x", type: 1, href: "" }],
       },
     });
     expect(extractClubWilierNumber(client)).toBeNull();
@@ -111,5 +112,93 @@ describe("isClientActive", () => {
   it("returns false when state is non-zero", () => {
     expect(isClientActive(makeClient({ state: 1 }))).toBe(false);
     expect(isClientActive(makeClient({ state: 2 }))).toBe(false);
+  });
+});
+
+describe("getMembershipName", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns clientId and membershipName when the attribute is found", async () => {
+    const client = makeClient({
+      id: 10,
+      attributes: {
+        items: [
+          {
+            id: 29,
+            name: "Membresía",
+            value: "5",
+            type: 1,
+            href: "https://api.bsale.io/v1/attributes/29.json",
+          },
+        ],
+      },
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ count: 1, items: [client] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            details: {
+              items: [{ id: 5, name: "Premium", value: "5" }],
+            },
+          }),
+        }),
+    );
+
+    const result = await getMembershipName(client);
+    expect(result).toEqual({ clientId: "10", membershipName: "Premium" });
+  });
+
+  it("returns nulls when the client has no attributes", async () => {
+    const client = makeClient({ attributes: undefined });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ count: 1, items: [client] }),
+      }),
+    );
+
+    const result = await getMembershipName(client);
+    expect(result).toEqual({ clientId: null, membershipName: null });
+  });
+
+  it("throws when the attribute detail fetch fails", async () => {
+    const client = makeClient({
+      attributes: {
+        items: [
+          {
+            id: 29,
+            name: "Membresía",
+            value: "5",
+            type: 1,
+            href: "https://api.bsale.io/v1/attributes/29.json",
+          },
+        ],
+      },
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ count: 1, items: [client] }),
+        })
+        .mockResolvedValueOnce({ ok: false, status: 500 }),
+    );
+
+    await expect(getMembershipName(client)).rejects.toThrow(
+      "Error obteniendo attributo",
+    );
   });
 });
