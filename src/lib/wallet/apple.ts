@@ -43,8 +43,8 @@ export function generateApplePass(
       "icon.png": getImageBuffer("logos/wilier-logo.jpeg"),
       "icon@2x.png": getImageBuffer("logos/wilier-logo.jpeg"),
       "icon@3x.png": getImageBuffer("logos/wilier-logo.jpeg"),
-      "logo.png": getImageBuffer("logos/wilier-text-logo.png"),
-      "logo@2x.png": getImageBuffer("logos/wilier-text-logo.png"),
+      "logo.png": getImageBuffer("All4Bikers_Logo.png"),
+      "logo@2x.png": getImageBuffer("All4Bikers_Logo.png"),
       "background.png": getImageBuffer("background-pass.png"),
       "background@2x.png": getImageBuffer("background-pass.png"),
     },
@@ -78,12 +78,18 @@ export function generateApplePass(
   });
 
   pass.primaryFields.push({
+    key: "club",
+    label: "Club",
+    value: "Wilier Privilege Club",
+  });
+
+  pass.secondaryFields.push({
     key: "name",
     label: "NOMBRE",
     value: `${user.firstName} ${user.lastName}`.toUpperCase(),
   });
 
-  pass.secondaryFields.push({
+  pass.auxiliaryFields.push({
     key: "rut",
     label: "RUT",
     value: maskRut(user.rut),
