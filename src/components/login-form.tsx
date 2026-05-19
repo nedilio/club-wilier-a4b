@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BrandLogo } from "@/components/login/brand-logo";
 import { Loader2Icon } from "lucide-react";
+import Image from "next/image";
 
 export function LoginForm({
   className,
@@ -108,12 +109,17 @@ export function LoginForm({
   return (
     <div className={cn("flex flex-col gap-8", className)} {...props}>
       <div className="flex flex-col items-center text-center gap-3">
-        <BrandLogo size="md" />
+        <Image
+          height={32}
+          width={32}
+          src={"/logos/a4b-iso.png"}
+          alt="Logo All4bikers"
+        />
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            CLUB WILIER
+            CLUB All4Bikers
           </h1>
-          <p className="text-sm text-white/60">Exclusivo para socios Wilier</p>
+          <p className="text-sm text-white/60">Exclusivo para socios</p>
         </div>
       </div>
 

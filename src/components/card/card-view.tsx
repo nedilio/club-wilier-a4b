@@ -6,6 +6,7 @@ import { MembershipCard } from "@/components/card/membership-card";
 import { WalletButtons } from "@/components/card/wallet-buttons";
 import { BrandLogo } from "@/components/login/brand-logo";
 import { LogOutIcon } from "lucide-react";
+import Image from "next/image";
 
 interface User {
   rut: string;
@@ -47,9 +48,14 @@ export function CardView({ user }: CardViewProps) {
 
       <div className="relative z-10 w-full max-w-md flex flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-2">
-          <BrandLogo size="sm" />
+          <Image
+            src={"/logos/a4b-iso.png"}
+            height={42}
+            width={42}
+            alt="All4bikers logo"
+          />
           <h1 className="text-xl font-bold tracking-tight text-white">
-            CLUB WILIER
+            CLUB ALL4BIKERS
           </h1>
           <p className="text-sm text-white/50">Tu tarjeta de socio</p>
         </div>

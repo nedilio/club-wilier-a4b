@@ -54,10 +54,7 @@ export function NotificationsForm() {
         )}
       </Button>
       {state.error ? (
-        <p
-          aria-live="polite"
-          className="text-sm text-[var(--color-accent-red)]"
-        >
+        <p aria-live="polite" className="text-sm text-(--color-accent-red)">
           {state.error}
         </p>
       ) : null}

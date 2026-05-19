@@ -51,8 +51,7 @@ export default async function NotificationsPage() {
                     src="/logos/a4b-iso.png"
                     width={40}
                     height={40}
-                    alt="All4Bikers"
-                    className="size-full object-contain"
+                    alt="All4Bikers logo"
                   />
                 </div>
                 <div>

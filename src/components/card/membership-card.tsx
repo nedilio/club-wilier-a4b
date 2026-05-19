@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { formatRut } from "@/lib/auth/rut";
-import { BrandLogo } from "@/components/login/brand-logo";
 
 interface MembershipCardProps {
   firstName: string;
@@ -73,7 +72,12 @@ export function MembershipCard({
           <div className="flex items-center gap-4">
             {isMember && (
               <div className="size-16 shrink-0 rounded-full bg-white/10 flex items-center justify-center">
-                <BrandLogo size="xs" />
+                <Image
+                  src={"/logos/a4b-iso.png"}
+                  height={42}
+                  width={42}
+                  alt="All4bikers logo"
+                />
               </div>
             )}
             <div>

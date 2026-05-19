@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CheckCircle2Icon, IdCardIcon, ShieldCheckIcon } from "lucide-react";
-import { BrandLogo } from "@/components/login/brand-logo";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Verificación",
@@ -37,10 +37,15 @@ export default async function VerifyPage({
           <div className="border-b border-white/10 p-8 text-white md:border-r md:border-b-0 md:p-10">
             <div className="flex items-center gap-4">
               <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                <BrandLogo size="sm" />
+                <Image
+                  height={42}
+                  width={42}
+                  src="/logos/a4b-iso.png"
+                  alt="a4b logo"
+                />
               </div>
               <div>
-                <p className="text-xs font-semibold tracking-[0.32em] text-[var(--color-accent-gold)] uppercase">
+                <p className="text-xs font-semibold tracking-[0.32em] text-(--color-accent-gold) uppercase">
                   Club All 4 bikers
                 </p>
                 <h1 className="mt-1 text-3xl font-semibold tracking-tight">
@@ -59,7 +64,7 @@ export default async function VerifyPage({
                 <CheckCircle2Icon className="mt-0.5 size-5 text-emerald-300" />
                 <div>
                   <p className="font-medium text-emerald-100">
-                    Acceso confirmado
+                    Cliente confirmado
                   </p>
                 </div>
               </div>
@@ -68,11 +73,11 @@ export default async function VerifyPage({
 
           <div className="bg-white p-8 md:p-10">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-[var(--color-wilier)] p-3 text-white">
+              <div className="rounded-2xl bg-(--color-wilier) p-3 text-white">
                 <ShieldCheckIcon className="size-5" />
               </div>
               <div>
-                <p className="text-xs font-semibold tracking-[0.28em] text-[var(--color-accent-red)] uppercase">
+                <p className="text-xs font-semibold tracking-[0.28em] text-(--color-accent-red) uppercase">
                   Resumen
                 </p>
                 <h2 className="mt-1 text-2xl font-semibold text-slate-950">
