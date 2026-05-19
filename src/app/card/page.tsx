@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   return {
     title: `${user.firstName} ${user.lastName}`,
-    description: `Tarjeta de socio Club Wilier de ${user.firstName} ${user.lastName}.`,
+    description: `Tarjeta de socio Club all4bikers de ${user.firstName} ${user.lastName}.`,
   };
 }
 

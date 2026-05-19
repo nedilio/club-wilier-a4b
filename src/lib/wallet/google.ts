@@ -30,7 +30,7 @@ export async function buildGoogleWalletUrl(
   const loyaltyClass = {
     id: classId,
     issuerName: "All4bikers",
-    programName: "club wilier",
+    programName: "club all4bikers",
     reviewStatus: "DRAFT",
   };
 

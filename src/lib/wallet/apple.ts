@@ -1,5 +1,6 @@
 import { PKPass } from "passkit-generator";
 import { maskRut } from "@/lib/auth/rut";
+import { A4B_ISO_LOGO_ASSET_PATH } from "@/lib/brand";
 import { getImageBuffer } from "../server-utils";
 
 export interface ApplePassUser {
@@ -41,9 +42,9 @@ export function generateApplePass(
 
   const pass = new PKPass(
     {
-      "icon.png": getImageBuffer("logos/a4b-iso.png"),
-      "icon@2x.png": getImageBuffer("logos/a4b-iso.png"),
-      "icon@3x.png": getImageBuffer("logos/a4b-iso.png"),
+      "icon.png": getImageBuffer(A4B_ISO_LOGO_ASSET_PATH),
+      "icon@2x.png": getImageBuffer(A4B_ISO_LOGO_ASSET_PATH),
+      "icon@3x.png": getImageBuffer(A4B_ISO_LOGO_ASSET_PATH),
       "logo.png": getImageBuffer("All4Bikers_Logo.png"),
       "logo@2x.png": getImageBuffer("All4Bikers_Logo.png"),
       "background.png": getImageBuffer("background-pass.png"),

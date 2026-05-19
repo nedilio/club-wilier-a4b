@@ -14,21 +14,21 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Club Wilier",
-    default: "Club Wilier",
+    template: "%s | Club All4Bikers",
+    default: "Club All4Bikers",
   },
   description:
-    "Club de ciclistas Wilier en Chile. Accede a tu tarjeta de socio digital.",
+    "Club de ciclistas All4Bikers en Chile. Accede a tu tarjeta de socio digital.",
   icons: {
     icon: "/fav_A4B_32x32.webp",
   },
   openGraph: {
-    title: "Club Wilier",
+    title: "Club All4Bikers",
     description:
-      "Club de ciclistas Wilier en Chile. Accede a tu tarjeta de socio digital.",
+      "Club de ciclistas All4Bikers en Chile. Accede a tu tarjeta de socio digital.",
     type: "website",
     locale: "es_CL",
-    siteName: "Club Wilier",
+    siteName: "Club All4Bikers",
   },
 };
 

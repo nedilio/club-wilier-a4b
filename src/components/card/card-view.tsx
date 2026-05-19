@@ -4,9 +4,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { MembershipCard } from "@/components/card/membership-card";
 import { WalletButtons } from "@/components/card/wallet-buttons";
-import { BrandLogo } from "@/components/login/brand-logo";
+import { A4bIsoLogo } from "@/components/branding/a4b-iso-logo";
 import { LogOutIcon } from "lucide-react";
-import Image from "next/image";
 
 interface User {
   rut: string;
@@ -48,12 +47,7 @@ export function CardView({ user }: CardViewProps) {
 
       <div className="relative z-10 w-full max-w-md flex flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-2">
-          <Image
-            src={"/logos/a4b-iso.png"}
-            height={42}
-            width={42}
-            alt="All4bikers logo"
-          />
+          <A4bIsoLogo size="sm" />
           <h1 className="text-xl font-bold tracking-tight text-white">
             CLUB ALL4BIKERS
           </h1>
@@ -71,9 +65,7 @@ export function CardView({ user }: CardViewProps) {
 
         {!isMember && (
           <div className="text-center px-4 py-3 rounded-lg bg-white/5 border border-white/10">
-            <p className="text-sm text-white/60">
-              No eres socio del Club Wilier aún.
-            </p>
+            <p className="text-sm text-white/60">No eres socio del Club aún.</p>
             <p className="text-xs text-white/40 mt-1">
               Solicita ser parte en nuestra tienda{" "}
             </p>

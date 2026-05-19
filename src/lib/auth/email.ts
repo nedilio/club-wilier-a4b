@@ -3,7 +3,8 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL =
-  process.env.NEXT_PUBLIC_FROM_EMAIL || "Club Wilier <onboarding@resend.dev>";
+  process.env.NEXT_PUBLIC_FROM_EMAIL ||
+  "Club All4bikers <onboarding@resend.dev>";
 
 interface SendOtpEmailParams {
   to: string;
@@ -19,7 +20,7 @@ export async function sendOtpEmail({
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background-color: #1a1a1a; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0;">CLUB WILIER</h1>
+        <h1 style="color: #ffffff; margin: 0;">CLUB All4bikers</h1>
       </div>
       <div style="padding: 24px; background-color: #f9f9f9;">
         <p style="font-size: 16px; color: #333;">
@@ -41,7 +42,7 @@ export async function sendOtpEmail({
         </p>
       </div>
       <div style="padding: 16px; text-align: center; background-color: #eee; font-size: 12px; color: #666;">
-        Club Wilier - Chile
+        Club All4bikers - Chile
       </div>
     </div>
   `;
@@ -55,13 +56,13 @@ export async function sendOtpEmail({
 
     Si no solicitaste este código, puedes ignorar este email.
 
-    Club Wilier - Chile
+    Club All4bikers - Chile
   `;
 
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "Tu código de acceso - Club Wilier",
+    subject: "Tu código de acceso - Club All4bikers",
     text,
     html,
   });

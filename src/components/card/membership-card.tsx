@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { A4bIsoLogo } from "@/components/branding/a4b-iso-logo";
 import { formatRut } from "@/lib/auth/rut";
 
 interface MembershipCardProps {
@@ -72,12 +73,7 @@ export function MembershipCard({
           <div className="flex items-center gap-4">
             {isMember && (
               <div className="size-16 shrink-0 rounded-full bg-white/10 flex items-center justify-center">
-                <Image
-                  src={"/logos/a4b-iso.png"}
-                  height={42}
-                  width={42}
-                  alt="All4bikers logo"
-                />
+                <A4bIsoLogo size="sm" className="size-[42px]" />
               </div>
             )}
             <div>

@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { BellRingIcon, Clock3Icon, SendIcon } from "lucide-react";
 import { desc } from "drizzle-orm";
 import { db, schema } from "@/db";
+import { A4bIsoLogo } from "@/components/branding/a4b-iso-logo";
 import { NotificationsForm } from "./notifications-form";
-import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Notificaciones",
-  description: "Envio y seguimiento de notificaciones para Club Wilier.",
+  description: "Envio y seguimiento de notificaciones para Club all4bikers.",
 };
 
 function formatNotificationDate(date: Date) {
@@ -47,12 +47,7 @@ export default async function NotificationsPage() {
             <div className="flex flex-col gap-6 border-b border-white/10 p-8 text-white lg:border-r lg:border-b-0 lg:p-10">
               <div className="flex items-center gap-4">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/10 p-2">
-                  <Image
-                    src="/logos/a4b-iso.png"
-                    width={40}
-                    height={40}
-                    alt="All4Bikers logo"
-                  />
+                  <A4bIsoLogo size="sm" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold tracking-[0.35em] text-(--color-accent-gold) uppercase">

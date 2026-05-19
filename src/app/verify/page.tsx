@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { CheckCircle2Icon, IdCardIcon, ShieldCheckIcon } from "lucide-react";
-import Image from "next/image";
+import { A4bIsoLogo } from "@/components/branding/a4b-iso-logo";
 
 export const metadata: Metadata = {
   title: "Verificación",
-  description: "Resultado de verificación para Club Wilier.",
+  description: "Resultado de verificación para Club All4bikers.",
 };
 
 export default async function VerifyPage({
@@ -37,12 +37,7 @@ export default async function VerifyPage({
           <div className="border-b border-white/10 p-8 text-white md:border-r md:border-b-0 md:p-10">
             <div className="flex items-center gap-4">
               <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                <Image
-                  height={42}
-                  width={42}
-                  src="/logos/a4b-iso.png"
-                  alt="a4b logo"
-                />
+                <A4bIsoLogo size="sm" />
               </div>
               <div>
                 <p className="text-xs font-semibold tracking-[0.32em] text-(--color-accent-gold) uppercase">

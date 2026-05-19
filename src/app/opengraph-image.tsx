@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export const alt = "Club Wilier – Tu tarjeta de socio digital";
+export const alt = "Club All4Bikers – Tu tarjeta de socio digital";
 
 export const size = {
   width: 1200,
@@ -12,13 +12,11 @@ export const size = {
 export const contentType = "image/png";
 
 export default async function Image() {
-  const [a4bLogoData, wilierLogoData] = await Promise.all([
-    readFile(join(process.cwd(), "public/All4Bikers_Logo.png")),
-    readFile(join(process.cwd(), "public/wilier.svg")),
-  ]);
+  const a4bLogoData = await readFile(
+    join(process.cwd(), "public/All4Bikers_Logo.png"),
+  );
 
   const a4bLogoSrc = `data:image/png;base64,${a4bLogoData.toString("base64")}`;
-  const wilierLogoSrc = `data:image/svg+xml;base64,${wilierLogoData.toString("base64")}`;
 
   return new ImageResponse(
     <div
@@ -34,44 +32,22 @@ export default async function Image() {
         gap: "48px",
       }}
     >
-      {/* Logos row */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: "64px",
         }}
       >
-        {/* All4Bikers logo */}
         <img
           src={a4bLogoSrc}
           alt="All4Bikers"
-          width={140}
-          height={140}
+          width={220}
+          height={132}
           style={{ objectFit: "contain" }}
-        />
-
-        {/* Divider */}
-        <div
-          style={{
-            width: "2px",
-            height: "80px",
-            background: "rgba(255,255,255,0.2)",
-          }}
-        />
-
-        {/* Wilier logo */}
-        <img
-          src={wilierLogoSrc}
-          alt="Wilier"
-          width={60}
-          height={80}
-          style={{ objectFit: "contain", filter: "invert(1)" }}
         />
       </div>
 
-      {/* Title */}
       <div
         style={{
           display: "flex",
@@ -89,7 +65,7 @@ export default async function Image() {
             lineHeight: 1,
           }}
         >
-          CLUB WILIER
+          CLUB ALL4BIKERS
         </span>
         <span
           style={{
@@ -98,7 +74,7 @@ export default async function Image() {
             letterSpacing: "4px",
           }}
         >
-          CHILE
+          TU TARJETA DE SOCIO DIGITAL
         </span>
       </div>
     </div>,
