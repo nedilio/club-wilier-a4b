@@ -13,10 +13,7 @@ export default async function VerifyPage({
   searchParams: Promise<{ rut?: string; membership?: string }>;
 }) {
   const { rut, membership } = await searchParams;
-  const isMember =
-    membership === "true" ||
-    membership === "1" ||
-    membership?.toLowerCase() === "si";
+  const isMember = !!membership;
 
   return (
     <main
@@ -44,7 +41,7 @@ export default async function VerifyPage({
               </div>
               <div>
                 <p className="text-xs font-semibold tracking-[0.32em] text-[var(--color-accent-gold)] uppercase">
-                  Club Wilier
+                  Club All 4 bikers
                 </p>
                 <h1 className="mt-1 text-3xl font-semibold tracking-tight">
                   Verificación exitosa
@@ -54,7 +51,7 @@ export default async function VerifyPage({
 
             <p className="mt-6 max-w-sm text-sm leading-6 text-white/70">
               La validación del código fue completada correctamente. Los datos
-              del socio quedan resumidos a la derecha.
+              del socio quedan resumidos a continuación.
             </p>
 
             <div className="mt-8 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-400/10 p-5">
@@ -63,10 +60,6 @@ export default async function VerifyPage({
                 <div>
                   <p className="font-medium text-emerald-100">
                     Acceso confirmado
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-emerald-50/75">
-                    Puedes continuar con el flujo de ingreso o mostrar esta
-                    pantalla como comprobante de validación.
                   </p>
                 </div>
               </div>
@@ -116,20 +109,10 @@ export default async function VerifyPage({
                     <p className="font-medium text-slate-950">
                       {membership || "Sin información"}
                     </p>
-                    <p className="text-sm text-slate-500">
-                      {isMember
-                        ? "Registro asociado a un socio del club."
-                        : "No se detectó una membresía activa."}
-                    </p>
                   </div>
                 </div>
               </div>
             </div>
-
-            <p className="mt-8 text-sm leading-6 text-slate-500">
-              Si necesitas volver al flujo principal, puedes cerrar esta vista y
-              continuar desde la aplicación.
-            </p>
           </div>
         </div>
       </section>
