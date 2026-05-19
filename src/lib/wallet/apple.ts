@@ -60,8 +60,8 @@ export function generateApplePass(
       passTypeIdentifier: certs.passTypeId,
       teamIdentifier: certs.teamIdentifier,
       serialNumber: user.rut,
-      organizationName: "Club Wilier",
-      description: "Tarjeta de Socio Club Wilier",
+      organizationName: "Club All4Bikers",
+      description: "Tarjeta de Socio Club All4Bikers",
       webServiceURL: `${process.env.NEXT_PUBLIC_APP_URL}/api/wallet/apple`,
       backgroundColor: "rgb(18, 28, 43)",
       foregroundColor: "rgb(255, 255, 255)",
@@ -111,7 +111,7 @@ export function generateApplePass(
   pass.backFields.push({
     key: "updates",
     label: "Última Información",
-    value: newMessage ?? "Bienvenidos al club Wilier de All4Bikers",
+    value: newMessage ?? "Bienvenidos al club All4Bikers",
     changeMessage: "All4Bikers: %@",
   });
 

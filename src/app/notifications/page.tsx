@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { BellRingIcon, Clock3Icon, SendIcon } from "lucide-react";
 import { desc } from "drizzle-orm";
 import { db, schema } from "@/db";
-import { BrandLogo } from "@/components/login/brand-logo";
 import { NotificationsForm } from "./notifications-form";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Notificaciones",
@@ -14,6 +14,7 @@ function formatNotificationDate(date: Date) {
   return new Intl.DateTimeFormat("es-CL", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "America/Santiago",
   }).format(date);
 }
 
@@ -45,12 +46,18 @@ export default async function NotificationsPage() {
           <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="flex flex-col gap-6 border-b border-white/10 p-8 text-white lg:border-r lg:border-b-0 lg:p-10">
               <div className="flex items-center gap-4">
-                <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
-                  <BrandLogo size="sm" />
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/10 p-2">
+                  <Image
+                    src="/logos/a4b-iso.png"
+                    width={40}
+                    height={40}
+                    alt="All4Bikers"
+                    className="size-full object-contain"
+                  />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold tracking-[0.35em] text-[var(--color-accent-gold)] uppercase">
-                    Club Wilier
+                  <p className="text-xs font-semibold tracking-[0.35em] text-(--color-accent-gold) uppercase">
+                    Club All4Bikers
                   </p>
                   <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                     Centro de notificaciones
@@ -60,8 +67,7 @@ export default async function NotificationsPage() {
 
               <p className="max-w-xl text-sm leading-6 text-white/72 sm:text-base">
                 Publica mensajes para las tarjetas digitales y revisa el
-                historial reciente en una interfaz consistente con el resto del
-                club.
+                historial reciente.
               </p>
 
               <div className="grid gap-3 sm:grid-cols-3">
@@ -80,7 +86,9 @@ export default async function NotificationsPage() {
                   <p className="text-xs uppercase tracking-[0.25em] text-white/45">
                     Estado
                   </p>
-                  <p className="mt-3 text-lg font-semibold">Listo para enviar</p>
+                  <p className="mt-3 text-lg font-semibold">
+                    Listo para enviar
+                  </p>
                   <p className="mt-1 text-sm text-white/55">
                     formulario operativo
                   </p>
@@ -102,13 +110,13 @@ export default async function NotificationsPage() {
             </div>
 
             <div className="p-8 lg:p-10">
-              <div className="rounded-[1.75rem] border border-[var(--color-accent-gold)]/25 bg-white p-6 shadow-[0_18px_60px_rgba(18,28,43,0.18)]">
+              <div className="rounded-[1.75rem] border border-(--color-accent-gold)/25 bg-white p-6 shadow-[0_18px_60px_rgba(18,28,43,0.18)]">
                 <div className="mb-6 flex items-start gap-4">
-                  <div className="rounded-2xl bg-[var(--color-wilier)] p-3 text-white">
+                  <div className="rounded-2xl bg-(--color-wilier) p-3 text-white">
                     <SendIcon className="size-5" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold tracking-[0.3em] text-[var(--color-accent-red)] uppercase">
+                    <p className="text-xs font-semibold tracking-[0.3em] uppercase">
                       Nuevo mensaje
                     </p>
                     <h2 className="mt-1 text-2xl font-semibold text-slate-950">
@@ -129,7 +137,7 @@ export default async function NotificationsPage() {
         <section className="rounded-[2rem] border border-white/12 bg-black/15 p-6 text-white shadow-[0_24px_60px_rgba(0,0,0,0.2)] backdrop-blur-md sm:p-8">
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold tracking-[0.32em] text-[var(--color-accent-gold)] uppercase">
+              <p className="text-xs font-semibold tracking-[0.32em] text-(--color-accent-gold) uppercase">
                 Historial
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight">
@@ -154,11 +162,11 @@ export default async function NotificationsPage() {
               {notifications.map((notification, index) => (
                 <article
                   key={notification.id}
-                  className="rounded-[1.5rem] border border-white/10 bg-white/[0.07] p-5 transition-colors hover:bg-white/[0.09]"
+                  className="rounded-[1.5rem] border border-white/10 bg-white/[0.07] p-5 transition-colors hover:bg-white/9"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-[var(--color-accent-gold)]">
+                      <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-(--color-accent-gold)">
                         <BellRingIcon className="size-5" />
                       </div>
                       <div>
@@ -166,7 +174,7 @@ export default async function NotificationsPage() {
                           <span className="text-sm font-medium text-white/70">
                             Mensaje {notifications.length - index}
                           </span>
-                          <span className="rounded-full bg-[var(--color-accent-red)]/15 px-2.5 py-1 text-xs font-medium text-[var(--color-accent-red)]">
+                          <span className="rounded-full bg-green-950 px-2.5 py-1 text-xs font-medium text-green-500">
                             Enviado
                           </span>
                         </div>
