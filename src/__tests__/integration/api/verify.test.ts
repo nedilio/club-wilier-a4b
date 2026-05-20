@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
-import { cleanDb, seedUser, seedOtpForTest } from "../../helpers/db";
+import { cleanDb, seedOtpForTest } from "../../helpers/db";
 import { db, schema } from "@/db";
 import { eq } from "drizzle-orm";
 

@@ -73,7 +73,7 @@ export function MembershipCard({
           <div className="flex items-center gap-4">
             {isMember && (
               <div className="size-16 shrink-0 rounded-full bg-white/10 flex items-center justify-center">
-                <A4bIsoLogo size="sm" className="size-[42px]" />
+                <A4bIsoLogo size="sm" className="size-10.5" />
               </div>
             )}
             <div>
@@ -127,20 +127,6 @@ export function MembershipCard({
         className="absolute -inset-1 rounded-3xl opacity-30 blur-xl -z-10"
         style={{
           background: "linear-gradient(135deg, #1e2f42, #121c2b)",
-        }}
-      />
-    </div>
-  );
-}
-
-export function MembershipCardPlaceholder() {
-  return (
-    <div className="relative w-full aspect-[85.6/53.98] max-w-md animate-pulse">
-      <div
-        className="absolute inset-0 rounded-2xl"
-        style={{
-          background:
-            "linear-gradient(135deg, #121c2b 0%, #1e2f42 50%, #0f1620 100%)",
         }}
       />
     </div>

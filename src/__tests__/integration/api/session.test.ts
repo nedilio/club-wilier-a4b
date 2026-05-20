@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { cleanDb, seedUser } from "../../helpers/db";
 import { createToken } from "@/lib/auth/jwt";
 

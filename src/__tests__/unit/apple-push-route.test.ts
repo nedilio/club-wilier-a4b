@@ -5,8 +5,6 @@ const shutdownMock = vi.fn();
 
 vi.mock("apn", () => {
   class MockProvider {
-    constructor(_options: unknown) {}
-
     send = sendMock;
     shutdown = shutdownMock;
   }

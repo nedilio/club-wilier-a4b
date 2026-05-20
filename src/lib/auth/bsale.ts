@@ -34,7 +34,6 @@ export interface BSaleClientResponse {
 }
 
 const CLUB_ATTRIBUTE_ID = 29;
-const CLUB_WILIER_ATTRIBUTE_ID = 27;
 
 export async function getClientByRut(
   rut: string,
