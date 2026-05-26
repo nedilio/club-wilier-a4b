@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 
-const protectedRoutes = ["/card"];
+const protectedRoutes = ["/card", "/notifications"];
 const publicRoutes = ["/login", "/api/auth"];
 
 export async function proxy(request: NextRequest) {
