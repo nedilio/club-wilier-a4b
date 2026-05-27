@@ -6,6 +6,7 @@ import { A4bIsoLogo } from "@/components/branding/a4b-iso-logo";
 import { NotificationsForm } from "./notifications-form";
 import { getSession } from "@/lib/auth/jwt";
 import { redirect } from "next/navigation";
+import { canSendNotifications } from "@/lib/auth/admin";
 
 export const metadata: Metadata = {
   title: "Notificaciones",
@@ -20,15 +21,14 @@ function formatNotificationDate(date: Date) {
   }).format(date);
 }
 
-const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(", ");
-
 export default async function NotificationsPage() {
   const session = await getSession();
-  const canSenNotifications = ADMIN_EMAILS?.includes(session?.email || "");
+  const isAdmin = canSendNotifications(session?.email || "");
 
-  if (!canSenNotifications) {
+  if (!isAdmin) {
     redirect("/");
   }
+
   const notifications = await db
     .select()
     .from(schema.notifications)

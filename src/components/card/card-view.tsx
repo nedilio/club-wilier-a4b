@@ -18,9 +18,10 @@ interface User {
 
 interface CardViewProps {
   user: User;
+  isAdmin: boolean;
 }
 
-export function CardView({ user }: CardViewProps) {
+export function CardView({ user, isAdmin }: CardViewProps) {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -53,16 +54,22 @@ export function CardView({ user }: CardViewProps) {
           </h1>
           <p className="text-sm text-white/50">Tu tarjeta de socio</p>
         </div>
-
         <MembershipCard
           firstName={user.firstName}
           lastName={user.lastName}
           rut={user.rut}
           clubWilierNumber={user.clubWilierNumber}
         />
-
         {isMember && <WalletButtons />}
-
+        {isAdmin && (
+          <Button
+            variant="link"
+            className="w-full border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
+            onClick={() => router.push("/notifications")}
+          >
+            Centro de notificaciones
+          </Button>
+        )}
         {!isMember && (
           <div className="text-center px-4 py-3 rounded-lg bg-white/5 border border-white/10">
             <p className="text-sm text-white/60">No eres socio del Club aún.</p>
@@ -71,7 +78,6 @@ export function CardView({ user }: CardViewProps) {
             </p>
           </div>
         )}
-
         <Button
           onClick={handleLogout}
           variant="default"
@@ -80,7 +86,6 @@ export function CardView({ user }: CardViewProps) {
           <LogOutIcon className="mr-2 size-4" />
           Cerrar sesión
         </Button>
-
         <p className="text-xs text-white/30">by All4Bikers Chile</p>
       </div>
     </div>
