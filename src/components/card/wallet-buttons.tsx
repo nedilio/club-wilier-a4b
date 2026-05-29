@@ -41,11 +41,13 @@ export function WalletButtons() {
       )}
 
       {(platform === "google" || platform === "both") && (
-        <a
-          href="/api/wallet/google"
-          aria-label="Guardar en Google Wallet"
-          className="block"
-        >
+        // <a
+        //   href="/api/wallet/google"
+        //   aria-label="Guardar en Google Wallet"
+        //   className="block"
+
+        // >
+        <div className="flex flex-col items-center justify-center rounded-lg bg-linear-to-r from-gray-800 to-gray-700 px-4 py-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 220 62"
@@ -97,7 +99,11 @@ export function WalletButtons() {
               Google Wallet
             </text>
           </svg>
-        </a>
+          <div className="text-white text-sm font-medium mt-2">
+            En construcción
+          </div>
+        </div>
+        // </a>
       )}
     </div>
   );
