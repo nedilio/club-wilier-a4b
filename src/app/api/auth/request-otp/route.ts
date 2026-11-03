@@ -34,7 +34,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const bsaleClient = await getClientByRut(cleanedRut);
+    const [localUser] = await db.select().from(schema.users)
+      .where(eq(schema.users.rut, cleanedRut)).limit(1);
+    const bsaleClient = localUser ?? await getClientByRut(cleanedRut);
 
     if (!bsaleClient) {
       return NextResponse.json(

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
-import { cleanDb } from "../../helpers/db";
+import { seedUser, cleanDb } from "../../helpers/db";
 import { db, schema } from "@/db";
 
 // Mock external services — real DB is used via DATABASE_URL → DATABASE_URL_TEST
@@ -57,6 +57,14 @@ const mockClient = {
 describe("POST /api/auth/request-otp", () => {
   afterEach(async () => {
     await cleanDb();
+  });
+
+  it("uses the local user without calling Bsale", async () => {
+    const user = await seedUser({ rut: validRut, qrToken: "existing-qr" });
+    vi.mocked(getClientByRut).mockClear();
+    const res = await POST(makeRequest(validBody));
+    expect(res.status).toBe(200);
+    expect(getClientByRut).not.toHaveBeenCalled();
   });
 
   describe("validation", () => {

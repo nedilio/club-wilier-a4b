@@ -65,15 +65,6 @@ export async function POST(request: NextRequest) {
       .set({ usedAt: new Date() })
       .where(eq(schema.otpCodes.id, otpRecord.id));
 
-    const bsaleClient = await getClientByRut(cleanedRut);
-
-    if (!bsaleClient) {
-      return NextResponse.json(
-        { success: false, error: "Cliente no encontrado" },
-        { status: 404 },
-      );
-    }
-
     if (!otpRecord.email) {
       return NextResponse.json(
         { success: false, error: "Email no encontrado en el registro" },
@@ -82,21 +73,33 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date();
-    const { clientId, membershipName } = await getMembershipName(bsaleClient);
-    const qrToken = clientId ? generateQrToken(cleanedRut) : null;
+    const [localUser] = await db.select().from(schema.users)
+      .where(eq(schema.users.rut, cleanedRut)).limit(1);
+    let newUserValues: typeof schema.users.$inferInsert | undefined;
+    if (!localUser) {
+      const bsaleClient = await getClientByRut(cleanedRut);
+      if (!bsaleClient) {
+        return NextResponse.json(
+          { success: false, error: "Cliente no encontrado" },
+          { status: 404 },
+        );
+      }
+      const { clientId, membershipName } = await getMembershipName(bsaleClient);
+      const qrToken = clientId ? generateQrToken(cleanedRut) : null;
 
-    const userValues = {
-      rut: cleanedRut,
-      firstName: String(bsaleClient.firstName),
-      lastName: String(bsaleClient.lastName),
-      email: otpRecord.email,
-      clubWilierNumber: clientId ?? null,
-      membershipName: membershipName ?? null,
-      qrToken: qrToken ?? null,
-      createdAt: now,
-      updatedAt: now,
-      lastSyncedAt: now,
-    };
+      newUserValues = {
+        rut: cleanedRut,
+        firstName: String(bsaleClient.firstName),
+        lastName: String(bsaleClient.lastName),
+        email: otpRecord.email,
+        clubWilierNumber: clientId ?? null,
+        membershipName: membershipName ?? null,
+        qrToken,
+        createdAt: now,
+        updatedAt: now,
+        lastSyncedAt: now,
+      };
+    }
 
     const token = await createToken({
       rut: cleanedRut,
@@ -106,22 +109,17 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await db.transaction(async (tx) => {
-      await tx
-        .insert(schema.users)
-        .values(userValues)
-        .onConflictDoUpdate({
-          target: schema.users.rut,
-          set: {
-            firstName: userValues.firstName,
-            lastName: userValues.lastName,
-            email: userValues.email,
-            clubWilierNumber: userValues.clubWilierNumber,
-            membershipName: userValues.membershipName,
-            qrToken: userValues.qrToken,
-            updatedAt: now,
-            lastSyncedAt: now,
-          },
-        });
+      if (newUserValues) {
+        await tx.insert(schema.users).values(newUserValues)
+          .onConflictDoUpdate({
+            target: schema.users.rut,
+            set: { email: otpRecord.email!, updatedAt: now },
+          });
+      } else {
+        await tx.update(schema.users)
+          .set({ email: otpRecord.email!, updatedAt: now })
+          .where(eq(schema.users.rut, cleanedRut));
+      }
 
       await tx
         .delete(schema.sessions)
