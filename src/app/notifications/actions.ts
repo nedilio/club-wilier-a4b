@@ -3,11 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { sendAppleWalletPushNotification } from "../api/wallet/apple/push/push";
 import { type SendPushNotificationState } from "./state";
+import { authorizeNotifications } from "@/lib/auth/admin";
 
 export async function sendPushNotification(
   _prevState: SendPushNotificationState,
   formData: FormData,
 ): Promise<SendPushNotificationState> {
+  const authorization = await authorizeNotifications();
+  if (!authorization.authorized) {
+    return { success: false, message: "", error: authorization.error };
+  }
+
   const notificationMessage = formData.get("notification");
   const message =
     typeof notificationMessage === "string" ? notificationMessage.trim() : "";

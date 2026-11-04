@@ -4,9 +4,8 @@ import { desc } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { A4bIsoLogo } from "@/components/branding/a4b-iso-logo";
 import { NotificationsForm } from "./notifications-form";
-import { getSession } from "@/lib/auth/jwt";
 import { redirect } from "next/navigation";
-import { canSendNotifications } from "@/lib/auth/admin";
+import { authorizeNotifications } from "@/lib/auth/admin";
 
 export const metadata: Metadata = {
   title: "Notificaciones",
@@ -22,11 +21,11 @@ function formatNotificationDate(date: Date) {
 }
 
 export default async function NotificationsPage() {
-  const session = await getSession();
-  const isAdmin = canSendNotifications(session?.email || "");
+  const authorization = await authorizeNotifications();
 
-  if (!isAdmin) {
-    redirect("/");
+  if (!authorization.authorized) {
+    if (authorization.status === 503) throw new Error(authorization.error);
+    redirect(authorization.status === 401 ? "/login" : "/card");
   }
 
   const notifications = await db
