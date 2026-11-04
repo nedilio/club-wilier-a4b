@@ -5,7 +5,7 @@ import { db, schema } from "@/db";
 import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth/jwt";
 import { CardView } from "@/components/card/card-view";
-import { canSendNotifications } from "@/lib/auth/admin";
+import { authorizeNotifications } from "@/lib/auth/admin";
 
 const getCardUser = cache(async () => {
   const session = await getSession();
@@ -44,7 +44,7 @@ export default async function CardPage() {
     redirect("/login");
   }
 
-  const isAdmin = canSendNotifications(user.email); // Verificar si el usuario es admin para mostrar opciones adicionales en la tarjeta
+  const { authorized: isAdmin } = await authorizeNotifications();
 
   return <CardView user={user} isAdmin={isAdmin} />;
 }
