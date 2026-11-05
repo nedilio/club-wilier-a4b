@@ -44,6 +44,13 @@ describe("notification authorization", () => {
     expect(mocks.findFirst).not.toHaveBeenCalled();
   });
 
+  it("propagates request-time signals from cookies instead of returning 503", async () => {
+    const signal = new Error("Next.js request-time signal");
+    mocks.cookie.mockImplementation(() => { throw signal; });
+    await expect(authorizeNotifications()).rejects.toBe(signal);
+    expect(mocks.findFirst).not.toHaveBeenCalled();
+  });
+
   it("rejects an invalid JWT without querying the database", async () => {
     mocks.cookie.mockReturnValue({ value: "invalid-jwt" });
     expect(await authorizeNotifications()).toMatchObject({ authorized: false, status: 401 });

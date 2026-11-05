@@ -23,10 +23,11 @@ export async function authorizeNotifications(): Promise<NotificationAuthorizatio
     error: "Tu sesión expiró",
   } as const;
 
-  try {
-    const token = await getSessionCookie();
-    if (!token) return unauthorized;
+  // Let Next.js handle cookies() request-time signals during prerendering.
+  const token = await getSessionCookie();
+  if (!token) return unauthorized;
 
+  try {
     const session = await verifyToken(token);
     if (
       !session ||
