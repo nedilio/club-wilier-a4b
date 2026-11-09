@@ -20,13 +20,13 @@ test("GET / redirects to /login", async ({ page }) => {
 
 test("GET /login renders the login form", async ({ page }) => {
   await page.goto("/login");
-  await expect(page.getByLabel(/email/i)).toBeVisible();
+  await expect(page.getByLabel(/correo/i)).toBeVisible();
   await expect(page.getByLabel(/rut/i)).toBeVisible();
 });
 
 test("submitting invalid data shows an error", async ({ page }) => {
   await page.goto("/login");
-  await page.getByLabel(/email/i).fill("not-an-email");
+  await page.getByLabel(/correo/i).fill("not-an-email");
   await page.getByLabel(/rut/i).fill("00000000-0");
   await page.getByRole("button", { name: /solicitar/i }).click();
   // The API will return an error; either client-side validation or API error is shown

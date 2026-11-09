@@ -4,7 +4,6 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { A4bIsoLogo } from "@/components/branding/a4b-iso-logo";
 import { Loader2Icon } from "lucide-react";
 
@@ -113,7 +112,7 @@ export function LoginForm({
           <h1 className="text-2xl font-bold tracking-tight text-white">
             CLUB All4Bikers
           </h1>
-          <p className="text-sm text-white/60">Exclusivo para socios</p>
+          <p className="text-sm text-white/70">Exclusivo para socios</p>
         </div>
       </div>
 
@@ -124,50 +123,46 @@ export function LoginForm({
           className="flex flex-col gap-4"
         >
           <div className="space-y-2">
-            <Input
+            <input
               type="email"
+              aria-label="Correo electrónico"
+              autoComplete="email"
               placeholder="tu@correo.cl"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/40 focus:ring-white/20"
+              className={fieldClass}
             />
-            <Input
+            <input
               type="text"
+              aria-label="RUT"
+              autoComplete="off"
               placeholder="RUT (ej: 12.345.678-9)"
               value={rut}
               onChange={(e) => handleRutChange(e.target.value)}
               maxLength={12}
               required
-              className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/40 focus:ring-white/20"
+              className={fieldClass}
             />
           </div>
 
-          {error && <p className="text-sm text-red-400 text-center">{error}</p>}
+          {error && <p className="text-sm text-red-300 text-center">{error}</p>}
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="h-12 w-full font-semibold text-base tracking-wide transition-all duration-200
-            hover:bg-white/10 hover:border-white/30"
-            // style={{
-            //   background: "linear-gradient(135deg, #e63946 0%, #c1121f 100%)",
-            // }}
-          >
+          <button type="submit" disabled={loading} className={submitClass}>
             {loading ? (
-              <Loader2Icon className="animate-spin" />
+              <Loader2Icon className="size-5 animate-spin" />
             ) : (
               "Solicitar código"
             )}
-          </Button>
+          </button>
 
-          <p className="text-xs text-center text-white/40">
+          <p className="text-xs text-center text-white/50">
             Al hacer clic en continuar, aceptas nuestros{" "}
-            <a href="#" className="text-white/60 hover:text-white underline">
+            <a href="#" className="text-white/70 hover:text-white underline">
               Términos de servicio
             </a>{" "}
             y{" "}
-            <a href="#" className="text-white/60 hover:text-white underline">
+            <a href="#" className="text-white/70 hover:text-white underline">
               Política de privacidad
             </a>
             .
@@ -180,12 +175,15 @@ export function LoginForm({
           className="flex flex-col gap-4"
         >
           <div className="space-y-3">
-            <p className="text-sm text-white/60 text-center">
+            <p className="text-sm text-white/70 text-center">
               Ingresa el código de 6 dígitos que enviamos a{" "}
               <span className="text-white font-medium">{email}</span>
             </p>
-            <Input
+            <input
               type="text"
+              aria-label="Código de verificación"
+              inputMode="numeric"
+              autoComplete="one-time-code"
               placeholder="000000"
               value={otp}
               onChange={(e) =>
@@ -193,33 +191,36 @@ export function LoginForm({
               }
               maxLength={6}
               required
-              className="h-14 text-center text-2xl tracking-[0.5em] font-mono bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus:ring-white/20"
+              className={cn(
+                fieldClass,
+                "h-14 text-center text-2xl tracking-[0.5em] font-mono placeholder:text-white/30",
+              )}
             />
             {message && (
-              <p className="text-sm text-green-400 text-center">{message}</p>
+              <p className="text-sm text-emerald-300 text-center">{message}</p>
             )}
             {error && (
-              <p className="text-sm text-red-400 text-center">{error}</p>
+              <p className="text-sm text-red-300 text-center">{error}</p>
             )}
           </div>
 
-          <Button
+          <button
             type="submit"
             disabled={loading || otp.length !== 6}
-            className="h-12 w-full font-semibold text-base tracking-wide transition-all duration-200 hover:bg-white/10 hover:border-white/30"
+            className={submitClass}
           >
             {loading ? (
-              <Loader2Icon className="animate-spin" />
+              <Loader2Icon className="size-5 animate-spin" />
             ) : (
               "Verificar y entrar"
             )}
-          </Button>
+          </button>
 
           <Button
             type="button"
             variant="ghost"
             onClick={handleBack}
-            className="text-white/60 hover:text-white hover:bg-white/10"
+            className="h-11 rounded-xl text-white/70 hover:text-white hover:bg-white/10"
           >
             Cambiar RUT o correo
           </Button>
@@ -227,8 +228,14 @@ export function LoginForm({
       )}
 
       <div className="text-center">
-        <p className="text-xs text-white/30">by All4Bikers Chile</p>
+        <p className="text-xs text-white/40">by All4Bikers Chile</p>
       </div>
     </div>
   );
 }
+
+const fieldClass =
+  "glass-field h-12 w-full rounded-xl px-4 text-base text-white placeholder:text-white/45 outline-none";
+
+const submitClass =
+  "flex h-12 w-full items-center justify-center rounded-xl bg-linear-to-b from-[#d8d6e8] to-[#a3a0b8] text-base font-semibold tracking-wide text-[#14131a] shadow-[inset_0_1px_0_rgb(255_255_255/0.6),0_10px_30px_-12px_rgb(163_160_184/0.6)] transition-all duration-200 hover:brightness-110 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-white/40";

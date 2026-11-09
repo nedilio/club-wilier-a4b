@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AppBackground } from "@/components/layout/app-background";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat-sans",
@@ -42,7 +43,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${montserrat.variable} ${geistMono.variable}`}>
-      <body className="min-h-full flex flex-col antialiased">{children}</body>
+      <body className="relative min-h-full flex flex-col antialiased bg-[#05070b] text-white">
+        <AppBackground />
+        {children}
+      </body>
     </html>
   );
 }
