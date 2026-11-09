@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { A4bIsoLogo } from "@/components/branding/a4b-iso-logo";
 import { formatRut } from "@/lib/auth/rut";
+import { cn } from "@/lib/utils";
 
 interface MembershipCardProps {
   firstName: string;
@@ -20,115 +21,118 @@ export function MembershipCard({
   const isMember = !!clubWilierNumber;
 
   return (
-    <div className="relative w-full aspect-[85.6/53.98] max-w-md">
+    <div
+      className="relative w-full max-w-md aspect-[85.6/53.98] overflow-hidden rounded-2xl border border-white/10"
+      style={{
+        background:
+          "linear-gradient(160deg, #0a0b0e 0%, #07080b 45%, #0e1320 75%, #1a2338 100%)",
+        boxShadow:
+          "inset 0 1px 0 rgb(255 255 255 / 0.15), 0 30px 60px -15px rgb(0 0 0 / 0.8)",
+      }}
+    >
+      {/* Luz diagonal superior izquierda */}
       <div
-        className="absolute inset-0 rounded-2xl overflow-hidden"
+        aria-hidden
+        className="pointer-events-none absolute -left-1/4 -top-1/4 h-1/2 w-[120%] -rotate-[30deg] rounded-full blur-2xl"
         style={{
           background:
-            "linear-gradient(135deg, #121c2b 0%, #1e2f42 50%, #0f1620 100%)",
-          boxShadow:
-            "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.1)",
+            "linear-gradient(90deg, rgb(255 255 255 / 0.1) 0%, rgb(255 255 255 / 0.04) 40%, transparent 75%)",
         }}
-      >
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
+      />
+      {/* Resplandor azul/lavanda inferior derecho */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 100% 100%, rgba(150,160,200,0.55) 0%, rgba(70,90,140,0.35) 35%, transparent 65%)",
+        }}
+      />
 
-        <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent" />
-
-        <div className="relative h-full p-6 flex flex-col justify-between">
-          <div className="flex justify-between items-start">
+      <div className="relative flex h-full flex-col justify-between p-5 sm:p-6">
+        {/* Header */}
+        <div>
+          <div className="flex items-start justify-between">
             <a
               href="https://www.all4bikers.cl"
               target="_blank"
               rel="noopener noreferrer"
+              className="-ml-1"
             >
-              <div className="-mx-2">
-                <Image
-                  src="/All4Bikers_Logo.png"
-                  alt="All4Bikers"
-                  width={180}
-                  height={107}
-                  className="object-contain w-auto h-16"
-                  loading="eager"
-                />
-              </div>
+              <Image
+                src="/All4Bikers_Logo.png"
+                alt="All4Bikers"
+                width={180}
+                height={107}
+                className="h-11 w-auto object-contain sm:h-14"
+                loading="eager"
+              />
             </a>
             {isMember && (
-              <div className="text-right">
-                <p className="text-[10px] uppercase tracking-widest text-white/40">
-                  Socio
-                </p>
-                <p className="text-lg font-bold tracking-wide text-white">
-                  #{clubWilierNumber}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4">
-            {isMember && (
-              <div className="size-16 shrink-0 rounded-full bg-white/10 flex items-center justify-center">
-                <A4bIsoLogo size="sm" className="size-10.5" />
-              </div>
-            )}
-            <div>
-              <h2 className="text-lg font-bold tracking-wide text-white uppercase">
-                {firstName} {lastName}
-              </h2>
-              <p className="text-sm text-white/50 font-mono">
-                {formatRut(rut)}
+              <p className="pt-1 text-[10px] uppercase tracking-[0.35em] text-white/50">
+                Socio
               </p>
-              {!isMember && (
-                <p className="text-sm text-white/30 mt-1">
-                  Solicita tu membresía en nuestra tienda
-                </p>
-              )}
-            </div>
+            )}
           </div>
+          <div className="mt-2 h-px bg-white/10 sm:mt-3" />
+        </div>
 
-          <div className="flex justify-between items-end">
-            <div className="flex items-center gap-2">
-              <div className="relative flex items-center justify-center w-4 h-4">
-                <span
-                  className={`absolute inline-flex w-4 h-4 rounded-full animate-ping opacity-60 ${
-                    isMember ? "bg-green-400" : "bg-red-400/50"
-                  }`}
-                />
-                <span
-                  className={`relative inline-flex w-2.5 h-2.5 rounded-full ${
-                    isMember ? "bg-green-400" : "bg-red-400/60"
-                  }`}
-                />
-              </div>
-              <span className="text-xs text-white/40">
-                {isMember ? "Activo" : "No es miembro"}
-              </span>
-            </div>
+        {/* Nombre */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 sm:size-14">
+            <A4bIsoLogo size="xs" className="size-6 sm:size-8" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="line-clamp-2 text-lg font-semibold uppercase leading-tight text-white sm:text-2xl">
+              {firstName} {lastName}
+            </h2>
+            {!isMember && (
+              <p className="mt-0.5 text-xs text-white/50 sm:text-sm">
+                Solicita tu membresía en nuestra tienda
+              </p>
+            )}
           </div>
         </div>
 
-        {isMember && (
-          <div
-            className="absolute top-4 right-4 w-20 h-20 rounded-full opacity-10"
-            style={{
-              background:
-                "radial-gradient(circle, #e63946 0%, transparent 70%)",
-            }}
-          />
-        )}
+        {/* Footer */}
+        <div>
+          <div className="mb-2 h-px bg-white/10 sm:mb-3" />
+          <div className="flex items-end justify-between gap-3">
+            <p className="text-4xl font-light leading-none tracking-tight text-white sm:text-5xl">
+              {isMember ? `#${clubWilierNumber}` : ""}
+            </p>
+            <div className="flex flex-col items-end gap-1.5 sm:gap-2">
+              <p className="font-mono text-xs text-white/80 sm:text-sm">
+                {formatRut(rut)}
+              </p>
+              <div
+                className={cn(
+                  "flex items-center gap-2 rounded-full border px-3 py-1 text-xs",
+                  isMember
+                    ? "border-white/10 bg-white/10 text-white"
+                    : "border-red-400/20 bg-red-500/10 text-red-200",
+                )}
+              >
+                <span className="relative flex size-2">
+                  <span
+                    className={cn(
+                      "absolute inline-flex size-full animate-ping rounded-full opacity-60",
+                      isMember ? "bg-emerald-400" : "bg-red-500",
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "relative inline-flex size-2 rounded-full",
+                      isMember ? "bg-emerald-400" : "bg-red-500",
+                    )}
+                  />
+                </span>
+                {isMember ? "Activo" : "No es miembro"}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div
-        className="absolute -inset-1 rounded-3xl opacity-30 blur-xl -z-10"
-        style={{
-          background: "linear-gradient(135deg, #1e2f42, #121c2b)",
-        }}
-      />
     </div>
   );
 }

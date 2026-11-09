@@ -41,69 +41,23 @@ export function WalletButtons() {
       )}
 
       {(platform === "google" || platform === "both") && (
-        // <a
-        //   href="/api/wallet/google"
-        //   aria-label="Guardar en Google Wallet"
-        //   className="block"
-
-        // >
-        <div className="flex flex-col items-center justify-center rounded-lg bg-linear-to-r from-gray-800 to-gray-700 px-4 py-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 220 62"
-            width="220"
-            height="62"
-            className="h-12 w-auto"
-            role="img"
-            aria-label="Save to Google Wallet"
-          >
-            <rect
-              width="220"
-              height="62"
-              rx="10"
-              fill="#404040"
-              stroke="white"
-              strokeWidth="1"
-              strokeOpacity="0.15"
+        // Deshabilitado hasta habilitar /api/wallet/google
+        <div className="flex flex-col items-center gap-2">
+          <div aria-disabled="true" className="pointer-events-none opacity-50">
+            {/* Badge oficial de Google: no modificar (brand guidelines) */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/wallet/google-wallet-badge-es419.svg"
+              alt="Agregar a la Billetera de Google"
+              width={239}
+              height={55}
+              className="h-12 w-auto"
             />
-            <circle cx="32" cy="31" r="10" fill="none" />
-            <text
-              x="27"
-              y="36"
-              fill="white"
-              fontSize="18"
-              fontFamily="'Google Sans', Roboto, sans-serif"
-              fontWeight="700"
-            >
-              G
-            </text>
-            <text
-              x="52"
-              y="26"
-              fill="white"
-              fontSize="10"
-              fontFamily="'Google Sans', Roboto, sans-serif"
-              fontWeight="400"
-              letterSpacing="0.5"
-            >
-              Save to
-            </text>
-            <text
-              x="52"
-              y="42"
-              fill="white"
-              fontSize="16"
-              fontFamily="'Google Sans', Roboto, sans-serif"
-              fontWeight="600"
-            >
-              Google Wallet
-            </text>
-          </svg>
-          <div className="text-white text-sm font-medium mt-2">
-            En construcción
           </div>
+          <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs text-white/70">
+            En construcción
+          </span>
         </div>
-        // </a>
       )}
     </div>
   );
