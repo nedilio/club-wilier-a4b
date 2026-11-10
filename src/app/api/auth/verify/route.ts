@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { eq, and, isNull, gt } from "drizzle-orm";
@@ -11,6 +11,7 @@ import {
   generateQrToken,
 } from "@/lib/auth/jwt";
 import { cleanRut } from "@/lib/auth/rut";
+import { sendPassUpdatePush } from "@/app/api/wallet/apple/push/push";
 
 const verifySchema = z.object({
   rut: z.string().min(8, "RUT requerido"),
@@ -101,6 +102,38 @@ export async function POST(request: NextRequest) {
       };
     }
 
+    // Usuario existente: resincronizar membresía con BSale. Si BSale falla,
+    // se continúa con los datos locales.
+    let syncValues: Partial<typeof schema.users.$inferInsert> = {};
+    let passChanged = false;
+    if (localUser) {
+      try {
+        const bsaleClient = await getClientByRut(cleanedRut);
+        if (bsaleClient) {
+          const { clientId, membershipName } =
+            await getMembershipName(bsaleClient);
+          syncValues = {
+            firstName: String(bsaleClient.firstName),
+            lastName: String(bsaleClient.lastName),
+            clubWilierNumber: clientId ?? null,
+            membershipName: membershipName ?? null,
+            qrToken: clientId ? generateQrToken(cleanedRut) : localUser.qrToken,
+            lastSyncedAt: now,
+          };
+          // Solo los socios pueden tener pase en Wallet: avisar si sigue
+          // siendo socio y cambió algún dato visible en el pase.
+          passChanged =
+            Boolean(localUser.clubWilierNumber && clientId) &&
+            (syncValues.membershipName !== localUser.membershipName ||
+              syncValues.clubWilierNumber !== localUser.clubWilierNumber ||
+              syncValues.firstName !== localUser.firstName ||
+              syncValues.lastName !== localUser.lastName);
+        }
+      } catch (error) {
+        console.error("BSale sync error on login:", error);
+      }
+    }
+
     const token = await createToken({
       rut: cleanedRut,
       email: otpRecord.email,
@@ -117,7 +150,7 @@ export async function POST(request: NextRequest) {
           });
       } else {
         await tx.update(schema.users)
-          .set({ email: otpRecord.email!, updatedAt: now })
+          .set({ email: otpRecord.email!, updatedAt: now, ...syncValues })
           .where(eq(schema.users.rut, cleanedRut));
       }
 
@@ -134,6 +167,10 @@ export async function POST(request: NextRequest) {
     });
 
     await setSessionCookie(token);
+
+    if (passChanged) {
+      after(() => sendPassUpdatePush(cleanedRut));
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

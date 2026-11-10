@@ -15,6 +15,8 @@ interface SeedUserOptions {
   email?: string;
   clubWilierNumber?: string | null;
   qrToken?: string | null;
+  membershipName?: string | null;
+  lastSyncedAt?: Date;
 }
 
 export async function seedUser(overrides: SeedUserOptions = {}) {

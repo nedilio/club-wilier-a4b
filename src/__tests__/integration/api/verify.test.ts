@@ -9,6 +9,15 @@ vi.mock("@/lib/auth/bsale", () => ({
   getMembershipName: vi.fn(),
 }));
 
+vi.mock("@/app/api/wallet/apple/push/push", () => ({
+  sendPassUpdatePush: vi.fn(),
+}));
+
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/server")>()),
+  after: (cb: () => unknown) => cb(),
+}));
+
 vi.mock("next/headers", () => ({
   cookies: vi.fn().mockResolvedValue({
     get: vi.fn(),
@@ -19,6 +28,8 @@ vi.mock("next/headers", () => ({
 
 import { getClientByRut, getMembershipName } from "@/lib/auth/bsale";
 import { POST } from "@/app/api/auth/verify/route";
+import { generateQrToken } from "@/lib/auth/jwt";
+import { sendPassUpdatePush } from "@/app/api/wallet/apple/push/push";
 
 function makeRequest(body: unknown) {
   return new NextRequest("http://localhost/api/auth/verify", {
@@ -52,18 +63,157 @@ describe("POST /api/auth/verify", () => {
     await cleanDb();
   });
 
-  it("uses the local user without calling Bsale", async () => {
-    const user = await seedUser({ rut: validRut, qrToken: "existing-qr" });
-    vi.mocked(getClientByRut).mockClear();
-    vi.mocked(getMembershipName).mockClear();
-    await seedOtpForTest(validRut, knownCode);
-    const res = await POST(makeRequest({ rut: validRut, code: knownCode }));
-    const [saved] = await db.select().from(schema.users).where(eq(schema.users.rut, validRut));
-    expect(saved.qrToken).toBe(user.qrToken);
-    expect(saved.lastSyncedAt).toEqual(user.lastSyncedAt);
-    expect(getMembershipName).not.toHaveBeenCalled();
-    expect(res.status).toBe(200);
-    expect(getClientByRut).not.toHaveBeenCalled();
+  describe("existing user BSale sync", () => {
+    const past = new Date("2025-01-01T00:00:00Z");
+
+    async function getSaved() {
+      const [saved] = await db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.rut, validRut));
+      return saved;
+    }
+
+    beforeEach(() => {
+      vi.mocked(getClientByRut).mockReset();
+      vi.mocked(getMembershipName).mockReset();
+      vi.mocked(sendPassUpdatePush).mockReset();
+    });
+
+    async function loginWithBsale(
+      membership: Awaited<ReturnType<typeof getMembershipName>>,
+    ) {
+      vi.mocked(getClientByRut).mockResolvedValue(mockClient);
+      vi.mocked(getMembershipName).mockResolvedValue(membership);
+      await seedOtpForTest(validRut, knownCode);
+      return POST(makeRequest({ rut: validRut, code: knownCode }));
+    }
+
+    describe("Apple Wallet pass update", () => {
+      const member = {
+        rut: validRut,
+        firstName: mockClient.firstName,
+        lastName: mockClient.lastName,
+        clubWilierNumber: "42",
+        membershipName: "Premium",
+        qrToken: "existing-qr",
+      };
+
+      it("pushes when a member's membership changes", async () => {
+        await seedUser(member);
+        await loginWithBsale({ clientId: "42", membershipName: "Gold" });
+        expect(sendPassUpdatePush).toHaveBeenCalledWith(validRut);
+      });
+
+      it("does not push when nothing visible on the pass changed", async () => {
+        await seedUser(member);
+        await loginWithBsale({ clientId: "42", membershipName: "Premium" });
+        expect(sendPassUpdatePush).not.toHaveBeenCalled();
+      });
+
+      it("does not push when the membership is lost", async () => {
+        await seedUser(member);
+        await loginWithBsale({ clientId: null, membershipName: null });
+        expect(sendPassUpdatePush).not.toHaveBeenCalled();
+      });
+
+      it("does not push when the user just became a member", async () => {
+        await seedUser({ ...member, clubWilierNumber: null, membershipName: null, qrToken: null });
+        await loginWithBsale({ clientId: "42", membershipName: "Premium" });
+        expect(sendPassUpdatePush).not.toHaveBeenCalled();
+      });
+    });
+
+    it("assigns membership when BSale now has one", async () => {
+      await seedUser({
+        rut: validRut,
+        clubWilierNumber: null,
+        qrToken: null,
+        lastSyncedAt: past,
+      });
+      vi.mocked(getClientByRut).mockResolvedValue(mockClient);
+      vi.mocked(getMembershipName).mockResolvedValue({
+        clientId: "42",
+        membershipName: "Premium",
+      });
+      await seedOtpForTest(validRut, knownCode);
+
+      const res = await POST(makeRequest({ rut: validRut, code: knownCode }));
+      expect(res.status).toBe(200);
+
+      const saved = await getSaved();
+      expect(saved.membershipName).toBe("Premium");
+      expect(saved.clubWilierNumber).toBe("42");
+      expect(saved.qrToken).toBe(generateQrToken(validRut));
+      expect(saved.lastSyncedAt.getTime()).toBeGreaterThan(past.getTime());
+    });
+
+    it("clears membership but keeps qrToken when BSale no longer has one", async () => {
+      await seedUser({
+        rut: validRut,
+        membershipName: "Premium",
+        qrToken: "existing-qr",
+      });
+      vi.mocked(getClientByRut).mockResolvedValue(mockClient);
+      vi.mocked(getMembershipName).mockResolvedValue({
+        clientId: null,
+        membershipName: null,
+      });
+      await seedOtpForTest(validRut, knownCode);
+
+      const res = await POST(makeRequest({ rut: validRut, code: knownCode }));
+      expect(res.status).toBe(200);
+
+      const saved = await getSaved();
+      expect(saved.membershipName).toBeNull();
+      expect(saved.clubWilierNumber).toBeNull();
+      expect(saved.qrToken).toBe("existing-qr");
+    });
+
+    it("logs in with local data when BSale throws", async () => {
+      const user = await seedUser({
+        rut: validRut,
+        membershipName: "Premium",
+        qrToken: "existing-qr",
+        lastSyncedAt: past,
+      });
+      vi.mocked(getClientByRut).mockRejectedValue(new Error("BSale down"));
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      await seedOtpForTest(validRut, knownCode);
+
+      const res = await POST(makeRequest({ rut: validRut, code: knownCode }));
+      expect(res.status).toBe(200);
+
+      const saved = await getSaved();
+      expect(saved.membershipName).toBe("Premium");
+      expect(saved.qrToken).toBe(user.qrToken);
+      expect(saved.lastSyncedAt).toEqual(past);
+      const sessions = await db
+        .select()
+        .from(schema.sessions)
+        .where(eq(schema.sessions.userRut, validRut));
+      expect(sessions).toHaveLength(1);
+    });
+
+    it("logs in with local data when BSale returns no client", async () => {
+      await seedUser({
+        rut: validRut,
+        membershipName: "Premium",
+        qrToken: "existing-qr",
+        lastSyncedAt: past,
+      });
+      vi.mocked(getClientByRut).mockResolvedValue(null);
+      await seedOtpForTest(validRut, knownCode);
+
+      const res = await POST(makeRequest({ rut: validRut, code: knownCode }));
+      expect(res.status).toBe(200);
+
+      const saved = await getSaved();
+      expect(saved.membershipName).toBe("Premium");
+      expect(saved.qrToken).toBe("existing-qr");
+      expect(saved.lastSyncedAt).toEqual(past);
+      expect(getMembershipName).not.toHaveBeenCalled();
+    });
   });
 
   describe("validation", () => {
