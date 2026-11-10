@@ -17,7 +17,7 @@ vi.mock("apn", () => ({ default: {
   Notification: class {},
 } }));
 
-import { sendAppleWalletPushNotification } from "@/app/api/wallet/apple/push/push";
+import { sendAppleWalletPushNotification, sendPassUpdatePush } from "@/app/api/wallet/apple/push/push";
 
 describe("Apple push service", () => {
   beforeEach(() => {
@@ -55,6 +55,41 @@ describe("Apple push service", () => {
       success: false, status: 502, environment: "production", failedCount: 1,
       hint: expect.stringContaining("produccion"),
     });
+    expect(mocks.shutdown).toHaveBeenCalledOnce();
+  });
+});
+
+describe("sendPassUpdatePush", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    vi.stubEnv("APPLE_P8_CONTENTS", "test-key");
+    vi.stubEnv("APPLE_PUSH_KEY_ID", "KEY123");
+    vi.stubEnv("APPLE_TEAM_IDENTIFIER", "TEAM123");
+    vi.stubEnv("APPLE_PASS_TYPE_ID", "pass.cl.all4bikers");
+  });
+  afterEach(() => { vi.unstubAllEnvs(); });
+
+  it("sends only to the user's devices without recording a notification", async () => {
+    mocks.devices.mockResolvedValue([{ pushToken: "user-token" }]);
+    mocks.send.mockResolvedValue({ sent: [{ device: "user-token" }], failed: [] });
+    await sendPassUpdatePush("12345678k");
+    expect(mocks.devices).toHaveBeenCalledOnce();
+    expect(mocks.send).toHaveBeenCalledWith(expect.anything(), "user-token");
+    expect(mocks.insert).not.toHaveBeenCalled();
+    expect(mocks.shutdown).toHaveBeenCalledOnce();
+  });
+
+  it("does not open an APNs provider when the user has no devices", async () => {
+    mocks.devices.mockResolvedValue([]);
+    await sendPassUpdatePush("12345678k");
+    expect(mocks.provider).not.toHaveBeenCalled();
+  });
+
+  it("never throws when APNs fails", async () => {
+    mocks.devices.mockResolvedValue([{ pushToken: "user-token" }]);
+    mocks.send.mockRejectedValue(new Error("APNs down"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(sendPassUpdatePush("12345678k")).resolves.toBeUndefined();
     expect(mocks.shutdown).toHaveBeenCalledOnce();
   });
 });

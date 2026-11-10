@@ -56,6 +56,73 @@ function getPushConfig() {
   };
 }
 
+type PushConfig = NonNullable<ReturnType<typeof getPushConfig>>;
+
+function createProvider(config: PushConfig) {
+  return new apn.Provider({
+    token: {
+      key: config.key,
+      keyId: config.keyId,
+      teamId: config.teamId,
+    },
+    production: config.production,
+  });
+}
+
+function buildPassUpdateNotification(topic: string) {
+  const notification = new apn.Notification() as AppleWalletNotification;
+  notification.topic = topic;
+  notification.payload = {
+    aps: {
+      "interruption-level": "active",
+      sound: "default",
+    },
+  };
+  notification.priority = 10;
+  notification.pushType = "background";
+  return notification;
+}
+
+/**
+ * Avisa a los dispositivos de un usuario que su pase cambió, para que Wallet
+ * lo vuelva a descargar. No registra un mensaje en `notifications` y nunca
+ * lanza error: los fallos solo se registran en el log.
+ */
+export async function sendPassUpdatePush(rut: string): Promise<void> {
+  const config = getPushConfig();
+  if (!config) return;
+
+  let apnProvider: apn.Provider | undefined;
+  try {
+    const registrations = await db.query.walletRegistrations.findMany({
+      columns: { pushToken: true },
+      where: (walletRegistrations, { and, eq }) =>
+        and(
+          eq(walletRegistrations.platform, "APPLE"),
+          eq(walletRegistrations.userId, rut),
+        ),
+    });
+    if (registrations.length === 0) return;
+
+    apnProvider = createProvider(config);
+    const notification = buildPassUpdateNotification(config.topic);
+    const results = await Promise.all(
+      registrations.map((registration) =>
+        apnProvider!.send(notification, registration.pushToken),
+      ),
+    );
+
+    const failed = results.flatMap((result) => result.failed);
+    if (failed.length > 0) {
+      console.error("Error enviando push de actualización de pase:", failed);
+    }
+  } catch (error) {
+    console.error("Error enviando push de actualización de pase:", error);
+  } finally {
+    apnProvider?.shutdown();
+  }
+}
+
 export async function sendAppleWalletPushNotification(
   body: unknown,
 ): Promise<ApplePushResult> {
@@ -81,30 +148,14 @@ export async function sendAppleWalletPushNotification(
   }
 
   const environment = config.production ? "production" : "sandbox";
-  const apnProvider = new apn.Provider({
-    token: {
-      key: config.key,
-      keyId: config.keyId,
-      teamId: config.teamId,
-    },
-    production: config.production,
-  });
+  const apnProvider = createProvider(config);
 
   try {
     await db.insert(schema.notifications).values({
       message: parsedBody.data.message,
     });
 
-    const notification = new apn.Notification() as AppleWalletNotification;
-    notification.topic = config.topic;
-    notification.payload = {
-      aps: {
-        "interruption-level": "active",
-        sound: "default",
-      },
-    };
-    notification.priority = 10;
-    notification.pushType = "background";
+    const notification = buildPassUpdateNotification(config.topic);
 
     const pushTokens = await db.query.walletRegistrations.findMany({
       columns: {

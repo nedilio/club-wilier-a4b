@@ -52,7 +52,11 @@ export async function GET(
 
   const notificationMessage =
     message?.message ?? "Bienvenidos al club Wilier de All4Bikers";
-  const lastModified = message?.createdAt ?? new Date();
+  // El pase cambia con un nuevo mensaje o cuando se actualizan los datos del
+  // usuario (p. ej. resync de membresía en el login).
+  const lastModified = new Date(
+    Math.max(message?.createdAt.getTime() ?? 0, user.updatedAt.getTime()),
+  );
   const ifModifiedSince = req.headers.get("if-modified-since");
   if (ifModifiedSince) {
     const lastModifiedDate = new Date(ifModifiedSince);
@@ -78,8 +82,7 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "application/vnd.apple.pkpass",
-      "Last-Modified":
-        message?.createdAt.toUTCString() ?? new Date().toUTCString(),
+      "Last-Modified": lastModified.toUTCString(),
     },
   });
 }
