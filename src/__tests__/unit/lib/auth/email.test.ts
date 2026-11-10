@@ -23,7 +23,7 @@ describe("sendOtpEmail", () => {
     expect(mockEmailsSend).toHaveBeenCalledOnce();
     const [args] = mockEmailsSend.mock.calls;
     expect(args[0].to).toBe("user@test.com");
-    expect(args[0].subject).toBe("Tu código de acceso - Club Wilier");
+    expect(args[0].subject).toBe("Tu código de acceso - Club All4bikers");
   });
 
   it("includes the OTP code in the html body", async () => {

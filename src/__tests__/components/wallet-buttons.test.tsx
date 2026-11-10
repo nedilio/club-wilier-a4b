@@ -7,6 +7,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+const GOOGLE_BADGE = /billetera de google/i;
+
 function setUA(ua: string) {
   vi.stubGlobal("navigator", { ...navigator, userAgent: ua });
 }
@@ -36,7 +38,7 @@ describe("WalletButtons", () => {
         ).toBeInTheDocument();
       });
       expect(
-        screen.queryByRole("link", { name: /google wallet/i }),
+        screen.queryByRole("img", { name: GOOGLE_BADGE }),
       ).not.toBeInTheDocument();
     });
 
@@ -60,11 +62,11 @@ describe("WalletButtons", () => {
       );
     });
 
-    it("shows Google Wallet button", async () => {
+    it("shows the Google Wallet badge", async () => {
       render(<WalletButtons />);
       await waitFor(() => {
         expect(
-          screen.getByRole("link", { name: /google wallet/i }),
+          screen.getByRole("img", { name: GOOGLE_BADGE }),
         ).toBeInTheDocument();
       });
     });
@@ -73,7 +75,7 @@ describe("WalletButtons", () => {
       render(<WalletButtons />);
       await waitFor(() => {
         expect(
-          screen.getByRole("link", { name: /google wallet/i }),
+          screen.getByRole("img", { name: GOOGLE_BADGE }),
         ).toBeInTheDocument();
       });
       expect(
@@ -81,16 +83,21 @@ describe("WalletButtons", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("Google Wallet link points to /api/wallet/google", async () => {
+    // Google Wallet sigue deshabilitado: sin link y con aviso "En construcción".
+    it("Google Wallet badge is disabled and not a link", async () => {
       render(<WalletButtons />);
       await waitFor(() => {
         expect(
-          screen.getByRole("link", { name: /google wallet/i }),
+          screen.getByRole("img", { name: GOOGLE_BADGE }),
         ).toBeInTheDocument();
       });
       expect(
-        screen.getByRole("link", { name: /google wallet/i }),
-      ).toHaveAttribute("href", "/api/wallet/google");
+        screen.getByRole("img", { name: GOOGLE_BADGE }).closest("a"),
+      ).toBeNull();
+      expect(
+        screen.getByRole("img", { name: GOOGLE_BADGE }).parentElement,
+      ).toHaveAttribute("aria-disabled", "true");
+      expect(screen.getByText(/en construcción/i)).toBeInTheDocument();
     });
   });
 
@@ -118,7 +125,7 @@ describe("WalletButtons", () => {
         ).toBeInTheDocument();
       });
       expect(
-        screen.queryByRole("link", { name: /google wallet/i }),
+        screen.queryByRole("img", { name: GOOGLE_BADGE }),
       ).not.toBeInTheDocument();
     });
   });
@@ -137,7 +144,7 @@ describe("WalletButtons", () => {
           screen.getByRole("link", { name: /apple wallet/i }),
         ).toBeInTheDocument();
         expect(
-          screen.getByRole("link", { name: /google wallet/i }),
+          screen.getByRole("img", { name: GOOGLE_BADGE }),
         ).toBeInTheDocument();
       });
     });
