@@ -136,25 +136,56 @@ describe("getMembershipName", () => {
       },
     });
 
-    vi.stubGlobal(
-      "fetch",
-      vi.fn()
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ count: 1, items: [client] }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            details: {
-              items: [{ id: 5, name: "Premium", value: "5" }],
-            },
-          }),
-        }),
-    );
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        details: {
+          items: [{ id: 5, name: "Premium", value: "5" }],
+        },
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
 
     const result = await getMembershipName(client);
     expect(result).toEqual({ clientId: "10", membershipName: "Premium" });
+    // Usa los atributos ya expandidos: solo consulta el detalle del atributo
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      "https://api.bsale.io/v1/attributes/29.json",
+    );
+  });
+
+  it("fetches the client when it arrives without attributes", async () => {
+    const attributes = {
+      items: [
+        {
+          id: 29,
+          name: "Membresía",
+          value: "5",
+          type: 1,
+          href: "https://api.bsale.io/v1/attributes/29.json",
+        },
+      ],
+    };
+    const client = makeClient({ id: 10, attributes: undefined });
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ count: 1, items: [{ ...client, attributes }] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          details: { items: [{ id: 5, name: "Premium", value: "5" }] },
+        }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getMembershipName(client);
+    expect(result).toEqual({ clientId: "10", membershipName: "Premium" });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("returns nulls when the client has no attributes", async () => {
@@ -189,12 +220,7 @@ describe("getMembershipName", () => {
 
     vi.stubGlobal(
       "fetch",
-      vi.fn()
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ count: 1, items: [client] }),
-        })
-        .mockResolvedValueOnce({ ok: false, status: 500 }),
+      vi.fn().mockResolvedValueOnce({ ok: false, status: 500 }),
     );
 
     await expect(getMembershipName(client)).rejects.toThrow(

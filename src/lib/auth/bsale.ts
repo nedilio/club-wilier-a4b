@@ -85,10 +85,12 @@ export function isClientActive(client: BSaleClient): boolean {
 }
 
 export async function getMembershipName(client: BSaleClient) {
-  const rut = client.code;
-  const clientWithAttributes = await getClientByRut(rut);
+  // getClientByRut expande los atributos por defecto; solo se vuelve a
+  // consultar si el cliente llegó sin ellos.
+  const attributes =
+    client.attributes ?? (await getClientByRut(client.code))?.attributes;
 
-  const attribute = clientWithAttributes?.attributes?.items.find(
+  const attribute = attributes?.items.find(
     (attr) => attr.id === CLUB_ATTRIBUTE_ID,
   );
   if (!attribute) {
