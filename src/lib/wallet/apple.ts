@@ -21,6 +21,37 @@ export interface AppleCerts {
   teamIdentifier: string;
 }
 
+export interface PassBackground {
+  /** Ruta relativa a `public/`. Si se omite, el pase usa solo `backgroundColor`. */
+  image?: string;
+  backgroundColor: string;
+}
+
+export const DEFAULT_PASS_BACKGROUND: PassBackground = {
+  image: "background-pass.png",
+  backgroundColor: "rgb(18, 28, 43)",
+};
+
+/**
+ * Fondo del pase por nombre de membresía (texto exacto del atributo 29 de BSale,
+ * guardado en `users.membershipName`). Las membresías sin entrada usan el fondo
+ * por defecto.
+ */
+export const MEMBERSHIP_BACKGROUNDS: Record<string, PassBackground> = {
+  "Wilier privilege club": DEFAULT_PASS_BACKGROUND,
+  "Team black": {
+    image: "wallet/team-black.png",
+    backgroundColor: "rgb(0, 0, 0)",
+  },
+};
+
+export function getPassBackground(membershipName: string | null): PassBackground {
+  if (!membershipName) {
+    return DEFAULT_PASS_BACKGROUND;
+  }
+  return MEMBERSHIP_BACKGROUNDS[membershipName] ?? DEFAULT_PASS_BACKGROUND;
+}
+
 function requiresPassphrase(signerKey: Buffer) {
   return signerKey.toString("utf-8").includes("BEGIN ENCRYPTED PRIVATE KEY");
 }
@@ -40,16 +71,23 @@ export function generateApplePass(
     throw new Error("User does not have a QR token.");
   }
 
+  const background = getPassBackground(user.membershipName);
+
+  const files: Record<string, Buffer> = {
+    "icon.png": getImageBuffer(A4B_ISO_LOGO_ASSET_PATH),
+    "icon@2x.png": getImageBuffer(A4B_ISO_LOGO_ASSET_PATH),
+    "icon@3x.png": getImageBuffer(A4B_ISO_LOGO_ASSET_PATH),
+    "logo.png": getImageBuffer("All4Bikers_Logo.png"),
+    "logo@2x.png": getImageBuffer("All4Bikers_Logo.png"),
+  };
+  if (background.image) {
+    const backgroundBuffer = getImageBuffer(background.image);
+    files["background.png"] = backgroundBuffer;
+    files["background@2x.png"] = backgroundBuffer;
+  }
+
   const pass = new PKPass(
-    {
-      "icon.png": getImageBuffer(A4B_ISO_LOGO_ASSET_PATH),
-      "icon@2x.png": getImageBuffer(A4B_ISO_LOGO_ASSET_PATH),
-      "icon@3x.png": getImageBuffer(A4B_ISO_LOGO_ASSET_PATH),
-      "logo.png": getImageBuffer("All4Bikers_Logo.png"),
-      "logo@2x.png": getImageBuffer("All4Bikers_Logo.png"),
-      "background.png": getImageBuffer("background-pass.png"),
-      "background@2x.png": getImageBuffer("background-pass.png"),
-    },
+    files,
     {
       wwdr: certs.wwdr,
       signerCert: certs.signerCert,
@@ -64,7 +102,7 @@ export function generateApplePass(
       organizationName: "Club All4Bikers",
       description: "Tarjeta de Socio Club All4Bikers",
       webServiceURL: `${process.env.NEXT_PUBLIC_APP_URL}/api/wallet/apple`,
-      backgroundColor: "rgb(18, 28, 43)",
+      backgroundColor: background.backgroundColor,
       foregroundColor: "rgb(255, 255, 255)",
       labelColor: "rgb(150, 160, 180)",
       sharingProhibited: true,
